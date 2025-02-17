@@ -3,7 +3,11 @@ package dao;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLTimeoutException;
+import java.sql.Statement;
+import java.time.LocalDate;
 
 import models.User;
 
@@ -56,4 +60,109 @@ public class UserDAO {
             return false;
         }
     }
+	
+	public boolean userExist(String email) {
+		
+	    String sql = "SELECT COUNT(*) AS count FROM " + TB_NAME + " WHERE " + TB_EMAIL + " = ?";
+
+	    try {
+	    	PreparedStatement stmt = conn.prepareStatement(sql);
+	    	
+	        stmt.setString(1, email);
+	        
+	        try {
+	        	ResultSet rs = stmt.executeQuery();
+	        	if (rs.next()) {
+	        		return rs.getInt("count") >= 1;
+	        	}
+	        } catch (SQLTimeoutException e) {
+		        System.err.println("Erreur : 'userExist()'\n");
+		        e.printStackTrace();
+			}
+	    } catch (SQLException e) {
+	        System.err.println("Erreur : 'userExist()'\n");
+	        e.printStackTrace();
+	    }
+
+	    return false;
+	}
+
+	/**
+	 * Cette méthode permet de récupérer un mot de passe à partir d'un email.
+	 * 
+	 * @param email
+	 * @return Le mot de passe haché correspondant à cet email.
+	 */
+	public String userPassword(String email) {
+		String sql = "SELECT "+ TB_MOT_DE_PASSE +" FROM "+ TB_NAME +" WHERE "+ TB_EMAIL +" = ?";
+		
+		try {
+			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt.setString(1, email);
+			
+			try {
+	        	ResultSet rs = stmt.executeQuery();
+	        	if (rs.next()) {
+	        		return rs.getString(TB_MOT_DE_PASSE);
+	        	}
+	        } catch (SQLTimeoutException e) {
+		        System.err.println("Erreur : 'userPassword()'\n");
+		        e.printStackTrace();
+			}
+		} catch (SQLException e) {
+			System.err.println("Erreur : 'userPassword()' -> createStatement() \n");
+			e.printStackTrace();
+		} 
+		
+		return "";
+	}
+	
+	/**
+	 * Cette méthode permet de récupérer un utilisateur en fonction de son <i>email</i>
+	 * 
+	 * @param email
+	 * @return <b>User | null : </b>retourne un <b>User</b> s'il existe ou <b>null</b> dans le cas contraire. 
+	 */
+	public User getUserByEmail(String email) {
+		String sql = "SELECT * FROM "+ TB_NAME +" WHERE "+ TB_EMAIL +" = ?";
+		
+		int idUser = 0;
+	    String nom = "";
+	    String prenom = "";
+	    String telephone = "";
+	    String adresse = "";
+	    String motDePasse = "";
+	    LocalDate dateNaissance = null;
+	    LocalDate dateInscription = null;
+	    String roleSysteme = "";
+	    
+		try {
+			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt.setString(1, email);
+			
+			try {
+	        	ResultSet rs = stmt.executeQuery();
+	        	while (rs.next()) {
+	        		idUser = rs.getInt(TB_ID_USER);
+	        		nom = rs.getString(TB_NOM);
+	        		prenom = rs.getString(TB_PRENOM);
+	        		telephone = rs.getString(TB_TELEPHONE);
+	        		adresse = rs.getString(TB_ADRESSE);
+	        		motDePasse = rs.getString(TB_MOT_DE_PASSE);
+	        		dateNaissance = rs.getDate(TB_DATE_NAISSANCE).toLocalDate();
+	        		dateInscription = rs.getDate(TB_DATE_INSCRIPTION).toLocalDate();
+	        		roleSysteme = rs.getString(TB_ROLE_SYSTEME);
+	        	}
+	        	
+	        	return new User(idUser, nom, prenom, telephone, email, adresse, motDePasse, dateNaissance, dateInscription, roleSysteme);
+	        } catch (SQLTimeoutException e) {
+		        System.err.println("Erreur : 'userPassword()'\n");
+		        e.printStackTrace();
+			}
+		} catch (SQLException e) {
+			System.err.println("Erreur : 'userPassword()' -> createStatement() \n");
+			e.printStackTrace();
+		}
+		return null;
+	}
 }

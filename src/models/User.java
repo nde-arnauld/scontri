@@ -34,7 +34,7 @@ public class User {
     }
     
     public User() {
-    	
+    	idUser = 0;
     }
     
     public int getIdUser() {

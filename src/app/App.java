@@ -14,7 +14,10 @@ public class App {
 		UserDAO userDAO = new UserDAO(connection);
 		UserController userController = new UserController(userDAO);
 		UserView userView = new UserView(userController);
+		
 		userView.ajouterUtilisateur();
+		userView.SeConnecter();
+		userView.SeDeconnecter();
 		
 		Database.closeConnection();
 	}
