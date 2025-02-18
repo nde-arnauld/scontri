@@ -9,7 +9,7 @@ CREATE TABLE Utilisateur (
     mot_de_passe VARCHAR(255) NOT NULL,
     date_naissance DATE,
     date_inscription DATETIME DEFAULT CURRENT_TIMESTAMP,
-    role_systeme ENUM('admin', 'organisateur', 'participant') DEFAULT 'participant'
+    role_systeme ENUM('admin', 'user') DEFAULT 'user'
 );
 
 -- Création de la table Lieu
@@ -37,7 +37,7 @@ CREATE TABLE Evenement (
     date_debut DATETIME NOT NULL,
     date_fin DATETIME NOT NULL,
     date_creation DATETIME DEFAULT CURRENT_TIMESTAMP,
-    status ENUM('actif', 'annule', 'termine') DEFAULT 'actif',
+    status ENUM('actif', 'annule','supprime', 'termine') DEFAULT 'actif',
     id_lieu INT,
     id_cat INT,
     FOREIGN KEY (id_lieu) REFERENCES Lieu(id_lieu),
@@ -65,7 +65,7 @@ CREATE TABLE Part_evenement (
 -- Création de la table Message
 CREATE TABLE Message (
     id_message INT AUTO_INCREMENT PRIMARY KEY,
-    contenu TEXT NOT NULL,
+    txt_msg TEXT NOT NULL,
     date_envoi DATETIME DEFAULT CURRENT_TIMESTAMP,
     id_user INT,
     id_event INT,
@@ -76,7 +76,7 @@ CREATE TABLE Message (
 -- Création de la table Commentaire
 CREATE TABLE Commentaire (
     id_comment INT AUTO_INCREMENT PRIMARY KEY,
-    message TEXT NOT NULL,
+    txt_comment TEXT NOT NULL,
     date_creation DATETIME DEFAULT CURRENT_TIMESTAMP,
     id_user INT,
     id_event INT,
@@ -87,7 +87,7 @@ CREATE TABLE Commentaire (
 -- Création de la table Notification
 CREATE TABLE Notification (
     id_notif INT AUTO_INCREMENT PRIMARY KEY,
-    text_notif TEXT NOT NULL,
+    txt_notif TEXT NOT NULL,
     date_envoi_notif DATETIME DEFAULT CURRENT_TIMESTAMP,
     id_event INT,
     FOREIGN KEY (id_event) REFERENCES Evenement(id_event)

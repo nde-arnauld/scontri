@@ -11,11 +11,12 @@ public class App {
 
 	public static void main(String[] args) {
 		Connection connection = Database.getConnection();
+		
 		UserDAO userDAO = new UserDAO(connection);
 		UserController userController = new UserController(userDAO);
 		UserView userView = new UserView(userController);
 		
-		userView.ajouterUtilisateur();
+		// userView.ajouterUtilisateur();
 		userView.SeConnecter();
 		userView.SeDeconnecter();
 		
