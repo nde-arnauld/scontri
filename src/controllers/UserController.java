@@ -17,11 +17,12 @@ public class UserController {
 	
 	public boolean createUser(String nom, String prenom, String telephone, String email, String adresse, 
             String motDePasse, LocalDate dateNaissance, LocalDate dateInscription, String roleSysteme) {
-		User user = new User(nom, prenom, telephone, email, adresse, motDePasse, dateNaissance, dateInscription, roleSysteme);
 		
 		if (userDAO.userExist(email)) {
 			return false;
 		}
+		
+		user = new User(nom, prenom, telephone, email, adresse, motDePasse, dateNaissance, dateInscription, roleSysteme);
 		
 		return userDAO.addUser(user);
 	}
