@@ -6,37 +6,39 @@ import dao.CategorieDAO;
 import models.Categorie;
 
 public class CategorieController {
+    private CategorieDAO categorieDAO;
 
-	private CategorieDAO categorieDAO;
-	private Categorie categorie ;
-	
-	public CategorieController(CategorieDAO catDAO) {
-		this.categorieDAO = catDAO;
-	}
-	
-	public boolean createCategorie(String nomCat) {
-		
-		if (categorieDAO.categorieExist(nomCat)) {
-			return false;
-		}
-		
-		categorie = new Categorie(nomCat);
+    public CategorieController(CategorieDAO categorieDAO) {
+        this.categorieDAO = categorieDAO;
+    }
 
-		return categorieDAO.addCategorie(categorie);
-	}
-	
-	public List<Categorie> listCategories() {
+    public boolean createCategorie(String nom) {
+        if (categorieDAO.categorieExist(nom)) {
+            return false;
+        }
+
+        Categorie categorie = new Categorie(nom);
+        return categorieDAO.addCategorie(categorie);
+    }
+
+    public boolean categorieExist(String nom) {
+        return categorieDAO.categorieExist(nom);
+    }
+
+    public boolean updateCategorie(int idCat, String nouveauNom) {
+        if (!categorieDAO.categorieExist(idCat)) {
+            return false;
+        }
+
+        Categorie categorie = new Categorie(idCat, nouveauNom);
+        return categorieDAO.updateCategorie(categorie);
+    }
+
+    public boolean deleteCategorie(int idCat) {
+        return categorieDAO.deleteCategorie(idCat);
+    }
+    
+    public List<Categorie> listCategories() {
         return categorieDAO.getAllCategories();
     }
-	
-	public boolean supprimerCategorie(int idCat) {
-		
-	    if (categorieDAO.categorieIDExist(idCat)) {
-	        return categorieDAO.deleteCategorie(idCat);
-	    }
-	    return false;
-	}
-	
-	
-	
 }
