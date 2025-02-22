@@ -57,6 +57,9 @@ CREATE TABLE Org_evenement (
 CREATE TABLE Part_evenement (
     id_user INT,
     id_event INT,
+    status enum('en_attente','rejetee', 'annulee', 'validee') NOT NULL DEFAULT 'en_attente',
+    presence enum('oui','non') NOT NULL DEFAULT 'non',
+    date_part datetime NOT NULL DEFAULT current_timestamp(),
     PRIMARY KEY (id_user, id_event),
     FOREIGN KEY (id_user) REFERENCES Utilisateur(id_user),
     FOREIGN KEY (id_event) REFERENCES Evenement(id_event)

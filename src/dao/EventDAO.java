@@ -12,31 +12,29 @@ import java.util.List;
 
 import models.Event;
 
-
 public class EventDAO {
-	private final String TB_NAME = "evenement";
-	private final String TB_ID_EVENT = "id_event";
-	private final String TB_NOM = "nom";
-	private final String TB_DESCRIPTION = "description";
-	private final String TB_CAPACITE = "capacite";
-	private final String TB_PRIX = "prix";
-	private final String TB_DATE_DEBUT = "date_debut";
-	private final String TB_DATE_FIN ="date_fin";
-	private final String TB_DATE_CREATION = "date_creation";
-	private final String TB_STATUS = "status";
-	private final String TB_ID_LIEU = "id_lieu";
-	private final String TB_ID_CAT = "id_cat";
-	
-	private Connection conn;
+    private final String TB_NAME = "evenement";
+    private final String TB_ID_EVENT = "id_event";
+    private final String TB_NOM = "nom";
+    private final String TB_DESCRIPTION = "description";
+    private final String TB_CAPACITE = "capacite";
+    private final String TB_PRIX = "prix";
+    private final String TB_DATE_DEBUT = "date_debut";
+    private final String TB_DATE_FIN = "date_fin";
+    private final String TB_DATE_CREATION = "date_creation";
+    private final String TB_STATUS = "status";
+    private final String TB_ID_LIEU = "id_lieu";
+    private final String TB_ID_CAT = "id_cat";
 
-	
-	public EventDAO(Connection con) {
-		
-		this.conn = con;
-		
-	}
-	
-	public boolean addEvent(Event event) {
+    private Connection conn;
+
+    public EventDAO(Connection con) {
+
+        this.conn = con;
+
+    }
+
+    public boolean addEvent(Event event) {
         String sql = "INSERT INTO " + TB_NAME + " (" +
                 TB_NOM + ", " +
                 TB_DESCRIPTION + ", " +
@@ -55,7 +53,7 @@ public class EventDAO {
             stmt.setString(2, event.getDescription());
             stmt.setInt(3, event.getCapacite());
             stmt.setDouble(4, event.getPrix());
-            stmt.setTimestamp(5, Timestamp.valueOf(event.getDateDebut()));  
+            stmt.setTimestamp(5, Timestamp.valueOf(event.getDateDebut()));
             stmt.setTimestamp(6, Timestamp.valueOf(event.getDateFin()));
             stmt.setTimestamp(7, Timestamp.valueOf(event.getDateCreation()));
             stmt.setString(8, event.getStatus());
@@ -69,8 +67,8 @@ public class EventDAO {
             return false;
         }
     }
-	
-	public boolean updateEvent(Event event) {
+
+    public boolean updateEvent(Event event) {
         String sql = "UPDATE " + TB_NAME + " SET " +
                 TB_NOM + " = ?, " +
                 TB_DESCRIPTION + " = ?, " +
@@ -93,7 +91,7 @@ public class EventDAO {
             stmt.setString(7, event.getStatus());
             stmt.setInt(8, event.getIdLieu());
             stmt.setInt(9, event.getIdCat());
-            stmt.setInt(10, event.getIdEvent()); 
+            stmt.setInt(10, event.getIdEvent());
 
             int result = stmt.executeUpdate();
             return result > 0;
@@ -107,7 +105,7 @@ public class EventDAO {
         String sql = "DELETE FROM " + TB_NAME + " WHERE " + TB_ID_EVENT + " = ?";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, eventId);  
+            stmt.setInt(1, eventId);
 
             int result = stmt.executeUpdate();
             return result > 0;
@@ -117,13 +115,37 @@ public class EventDAO {
         }
     }
 
-		
-	public List<Event> getAllEvents() {
+    public Event getEventById(int idEvent) {
+        String sql = "SELECT * FROM " + TB_NAME + " WHERE " + TB_ID_EVENT + " = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idEvent);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return new Event(
+                        rs.getInt(TB_ID_EVENT),
+                        rs.getString(TB_NOM),
+                        rs.getString(TB_DESCRIPTION),
+                        rs.getInt(TB_CAPACITE),
+                        rs.getDouble(TB_PRIX),
+                        rs.getTimestamp(TB_DATE_DEBUT).toLocalDateTime(),
+                        rs.getTimestamp(TB_DATE_FIN).toLocalDateTime(),
+                        rs.getTimestamp(TB_DATE_CREATION).toLocalDateTime(),
+                        rs.getString(TB_STATUS),
+                        rs.getInt(TB_ID_LIEU),
+                        rs.getInt(TB_ID_CAT));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public List<Event> getAllEvents() {
         List<Event> events = new ArrayList<>();
         String sql = "SELECT * FROM " + TB_NAME;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+                ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 Event event = new Event(
@@ -132,13 +154,12 @@ public class EventDAO {
                         rs.getString(TB_DESCRIPTION),
                         rs.getInt(TB_CAPACITE),
                         rs.getDouble(TB_PRIX),
-                        rs.getTimestamp(TB_DATE_DEBUT).toLocalDateTime(),  
+                        rs.getTimestamp(TB_DATE_DEBUT).toLocalDateTime(),
                         rs.getTimestamp(TB_DATE_FIN).toLocalDateTime(),
                         rs.getTimestamp(TB_DATE_CREATION).toLocalDateTime(),
                         rs.getString(TB_STATUS),
                         rs.getInt(TB_ID_LIEU),
-                        rs.getInt(TB_ID_CAT)
-                );
+                        rs.getInt(TB_ID_CAT));
                 events.add(event);
             }
         } catch (SQLException e) {
@@ -146,8 +167,20 @@ public class EventDAO {
         }
         return events;
     }
-	
-	
-	
 
+    public boolean eventExists(int eventId) {
+        String sql = "SELECT COUNT(*) FROM " + TB_NAME + " WHERE " + TB_ID_EVENT + " = ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, eventId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

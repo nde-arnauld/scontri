@@ -6,31 +6,31 @@ import java.util.Scanner;
 import java.time.format.DateTimeParseException;
 
 public class DateTaker {
-		
-	private static Scanner scanner;
 
+    private static Scanner scanner;
 
-	public static LocalDate saisirDate(String message) {
+    public static LocalDate saisirDate(String message) {
         while (true) {
+            scanner = new Scanner(System.in);
             try {
                 System.out.print(message);
                 String dateStr = scanner.nextLine();
-                return LocalDate.parse(dateStr); 
+                return LocalDate.parse(dateStr);
             } catch (DateTimeParseException e) {
                 System.out.println("Format invalide ! Veuillez entrer la date au format YYYY-MM-DD.");
             }
         }
     }
-	
-	
-	public static LocalDateTime saisirDateTime(String message) {
+
+    public static LocalDateTime saisirDateTime(String message) {
         while (true) {
+            scanner = new Scanner(System.in);
             try {
                 System.out.print(message);
                 String input = scanner.nextLine();
-                return LocalDateTime.parse(input.replace(" ", "T")); 
+                return LocalDateTime.parse(input.replace(" ", "T"));
             } catch (Exception e) {
-                System.out.println("❌ Format invalide, veuillez entrer une date correcte (yyyy-MM-dd HH:mm).");
+                System.out.println("Format invalide, veuillez entrer une date correcte (YYYY-MM-DD HH:mm).");
             }
         }
     }

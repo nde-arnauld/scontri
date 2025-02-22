@@ -1,7 +1,6 @@
 package views.console;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
 import controllers.UserController;
@@ -104,7 +103,6 @@ public class UserView {
             }
         }
     }
-
 
     public void SeConnecter() {
         System.out.println("\nSE CONNECTER : ");
