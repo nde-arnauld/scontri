@@ -8,6 +8,7 @@ import java.util.Scanner;
 import controllers.CategorieController;
 import controllers.EventController;
 import controllers.LieuController;
+import controllers.Org_EventController;
 import models.Event;
 import utils.Popup;
 import utils.DateTaker;
@@ -16,16 +17,18 @@ public class EventView {
     private EventController eventController;
     private CategorieView categorieView;
     private LieuView lieuView;
+    private Org_EventView org_EventView;
     private Scanner scanner;
 
-    public EventView(EventController eventController, CategorieController categorieController, LieuController lieuController) {
+    public EventView(EventController eventController, CategorieController categorieController, LieuController lieuController, Org_EventController org_EventController) {
         this.eventController = eventController;
         this.categorieView = new CategorieView(categorieController);
         this.lieuView = new LieuView(lieuController);
+        this.org_EventView = new Org_EventView(org_EventController);
         scanner = new Scanner(System.in);
     }
     
-    public void ajouterUnEvenement() {
+    public void ajouterUnEvenement(int idCurrentUser) {
         System.out.println("\nAJOUTER UN NOUVEL EVENEMENT:");
         System.out.println("------------------------------\n");
 
@@ -62,7 +65,8 @@ public class EventView {
                 
         String status = "actif";
         
-        boolean result = eventController.addEvent(nom, description, capacite, prix, dateDebut, dateFin, status, idLieu, idCat);
+        int idNewevent = eventController.createEvent(nom, description, capacite, prix, dateDebut, dateFin, status, idLieu, idCat);
+        boolean result = org_EventView.ajouterOrgEvenement(idCurrentUser,idNewevent);
         Popup.toPrint(result, "Événement ajouté avec succès !", "Échec de l'ajout de l'événement.");
     }
 
@@ -121,7 +125,7 @@ public class EventView {
             System.out.println("\nLISTE DES ÉVÉNEMENTS :");
             System.out.println("------------------------------");
             for (Event event : events) {
-                System.out.println(event.getIdEvent() + " - " + event.getNom() + " (" + event.getDateDebut() + " → " + event.getDateFin() + ")");
+                System.out.println("ID: "+ event.getIdEvent() + "|Nom: " + event.getNom() + "|Période: (" + event.getDateDebut() + " → " + event.getDateFin() + ")");
             }
         }
     }

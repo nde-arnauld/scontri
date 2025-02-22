@@ -32,7 +32,7 @@ public class EventDAO {
 
     }
 
-    public boolean addEvent(Event event) {
+    public int addEvent(Event event) {
         String sql = "INSERT INTO " + TB_NAME + " (" +
                 TB_NOM + ", " +
                 TB_DESCRIPTION + ", " +
@@ -46,7 +46,7 @@ public class EventDAO {
                 TB_ID_CAT +
                 ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = conn.prepareStatement(sql,PreparedStatement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, event.getNom());
             stmt.setString(2, event.getDescription());
             stmt.setInt(3, event.getCapacite());
@@ -58,11 +58,17 @@ public class EventDAO {
             stmt.setInt(9, event.getIdLieu());
             stmt.setInt(10, event.getIdCat());
 
-            int result = stmt.executeUpdate();
-            return result > 0;
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows > 0) {
+            	ResultSet generatedKeys = stmt.getGeneratedKeys();
+                if (generatedKeys.next()) {
+                    return generatedKeys.getInt(1);
+                }
+            }
+            return 0;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return 0;
         }
     }
 

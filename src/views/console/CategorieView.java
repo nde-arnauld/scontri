@@ -68,7 +68,7 @@ public class CategorieView {
         } else {
             System.out.println("Liste des catégories :");
             for (Categorie categorie : categories) {
-                System.out.println(categorie.getIdCat() + "- "+categorie.getNom());
+                System.out.println("ID: "+categorie.getIdCat() + "|Nom: "+categorie.getNom());
             }
         }
     }
