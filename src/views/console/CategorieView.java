@@ -33,6 +33,9 @@ public class CategorieView {
     public void modifierUneCategorie() {
     	System.out.println("\nMODIFIER UNE CATEGORIE:");
         System.out.println("------------------------------\n");
+        
+        listerCategories();
+        
     	System.out.print("Entrez l'ID de la catégorie à modifier : ");
         int idCat = Integer.parseInt(scanner.nextLine());
 
@@ -47,6 +50,9 @@ public class CategorieView {
     public void supprimerUneCategorie() {
     	System.out.println("\nSUPPRIMER D'UNE CATEGORIE:");
         System.out.println("------------------------------\n");
+        
+        listerCategories();
+        
     	System.out.print("Entrez l'ID de la catégorie à supprimer : ");
         int idCat = Integer.parseInt(scanner.nextLine());
 

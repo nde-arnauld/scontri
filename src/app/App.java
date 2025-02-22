@@ -15,17 +15,16 @@ public class App {
 	public static void main(String[] args) {
 		Connection connection = Database.getConnection();
 
-		
-		 UserDAO userDAO = new UserDAO(connection);
-		 UserController userController = new UserController(userDAO);
-		 UserView userView = new UserView(userController);
-		  
-		  
-		 userView.ajouterUtilisateur();
-		 userView.SeConnecter();
-		 userView.SeDeconnecter();
+//		Test authentification
+//		 UserDAO userDAO = new UserDAO(connection);
+//		 UserController userController = new UserController(userDAO);
+//		 UserView userView = new UserView(userController);
+//		  
+//		  
+//		 userView.ajouterUtilisateur();
+//		 userView.SeConnecter();
+//		 userView.SeDeconnecter();
 		 
-		 Database.closeConnection();
 		 
 		
 //		
@@ -35,6 +34,11 @@ public class App {
 //
 //		categorieView.listerCategories();
 //		categorieView.ajouterUneCategorie();
+		 
+		 
+		 
+		 
+		 Database.closeConnection();
 		
 	}
 

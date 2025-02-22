@@ -7,6 +7,7 @@ import java.util.Scanner;
 import controllers.UserController;
 import utils.Password;
 import utils.Popup;
+import utils.DateTaker;
 
 public class UserView {
     private UserController userController;
@@ -38,7 +39,7 @@ public class UserView {
         String motDePasse = motDePasseCorrect("Mot de passe: ");
         motDePasse = Password.hasherMotDePasse(motDePasse);
 
-        LocalDate dateNaissance = saisirDate("Date de naissance (YYYY-MM-DD) : ");
+        LocalDate dateNaissance = DateTaker.saisirDate("Date de naissance (YYYY-MM-DD) : ");
 
         LocalDate dateInscription = LocalDate.now();
 
@@ -104,21 +105,6 @@ public class UserView {
         }
     }
 
-    // Méthode pour saisir et valider une date
-    private LocalDate saisirDate(String message) {
-        while (true) {
-            try {
-                System.out.print(message);
-                String dateStr = scanner.nextLine();
-                return LocalDate.parse(dateStr); // Conversion String -> LocalDate
-            } catch (DateTimeParseException e) {
-                System.out.println("Format invalide ! Veuillez entrer la date au format YYYY-MM-DD.");
-            }
-        }
-    }
-
-    // ==================================================================================================================
-    // //
 
     public void SeConnecter() {
         System.out.println("\nSE CONNECTER : ");
