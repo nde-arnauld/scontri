@@ -11,7 +11,7 @@ public class CategorieController {
     public CategorieController(CategorieDAO categorieDAO) {
         this.categorieDAO = categorieDAO;
     }
-
+    
     public boolean createCategorie(String nom) {
         if (categorieDAO.categorieExist(nom)) {
             return false;

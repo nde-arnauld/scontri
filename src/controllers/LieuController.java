@@ -1,5 +1,7 @@
 package controllers;
 
+import java.util.List;
+
 import dao.LieuDAO;
 import models.Lieu;
 
@@ -29,4 +31,10 @@ public class LieuController {
         } else
             return false;
     }
+    
+    public List<Lieu> getLieuxByName(String nom) {
+        return lieuDAO.getLieuxByName(nom);
+    }
+      
+
 }

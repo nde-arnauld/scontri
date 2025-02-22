@@ -7,8 +7,7 @@ import java.time.format.DateTimeParseException;
 
 public class DateTaker {
 		
-	private static Scanner scanner;
-
+	private static Scanner scanner = new Scanner(System.in);
 
 	public static LocalDate saisirDate(String message) {
         while (true) {

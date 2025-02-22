@@ -1,23 +1,30 @@
 package views.console;
 
 import java.time.LocalDateTime;
+
 import java.util.List;
 import java.util.Scanner;
 
+import controllers.CategorieController;
 import controllers.EventController;
+import controllers.LieuController;
 import models.Event;
 import utils.Popup;
 import utils.DateTaker;
 
 public class EventView {
     private EventController eventController;
+    private CategorieView categorieView;
+    private LieuView lieuView;
     private Scanner scanner;
 
-    public EventView(EventController eventController) {
+    public EventView(EventController eventController, CategorieController categorieController, LieuController lieuController) {
         this.eventController = eventController;
+        this.categorieView = new CategorieView(categorieController);
+        this.lieuView = new LieuView(lieuController);
         scanner = new Scanner(System.in);
     }
-
+    
     public void ajouterUnEvenement() {
         System.out.println("\nAJOUTER UN NOUVEL EVENEMENT:");
         System.out.println("------------------------------\n");
@@ -33,14 +40,28 @@ public class EventView {
 
         LocalDateTime dateDebut = DateTaker.saisirDateTime("Date de début (yyyy-MM-dd HH:mm) : ");
         LocalDateTime dateFin = DateTaker.saisirDateTime("Date de fin (yyyy-MM-dd HH:mm) : ");
-
-        System.out.print("Statut : ");
-        String status = scanner.nextLine();
-        System.out.print("ID Lieu : ");
-        int idLieu = Integer.parseInt(scanner.nextLine());
-        System.out.print("ID Catégorie : ");
+        
+        
+        categorieView.listerCategories();
+        System.out.print("Choisissez L'ID de la Catégorie de l'évenement : ");
         int idCat = Integer.parseInt(scanner.nextLine());
-
+        
+        System.out.print("\nEntrez le nom du lieu : ");
+        String nomLieu = scanner.nextLine();
+        int idLieu = 0;
+        
+        while (idLieu == 0) {
+        	boolean found = lieuView.ListerLieuxParNom(nomLieu);
+            if (found) {
+                System.out.print("\nChoisissez L'ID du lieu de l'évenement : ");
+            	idLieu = Integer.parseInt(scanner.nextLine());
+    		}else {
+    			lieuView.ajouterUnLieu();
+    		}   			
+		}
+                
+        String status = "actif";
+        
         boolean result = eventController.addEvent(nom, description, capacite, prix, dateDebut, dateFin, status, idLieu, idCat);
         Popup.toPrint(result, "Événement ajouté avec succès !", "Échec de l'ajout de l'événement.");
     }
@@ -89,8 +110,7 @@ public class EventView {
         boolean result = eventController.deleteEvent(id);
         Popup.toPrint(result, "Événement supprimé avec succès !", "Échec de la suppression de l'événement.");
     }
-    
-        
+            
 
     public void listerEvenements() {
         List<Event> events = eventController.listEvents();
@@ -105,8 +125,7 @@ public class EventView {
             }
         }
     }
-
-
-      
+    
+        
     
 }

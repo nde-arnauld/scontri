@@ -72,6 +72,30 @@ public class LieuDAO {
         }
         return null;
     }
+    
+    public List<Lieu> getLieuxByName(String nom) {
+        List<Lieu> lieux = new ArrayList<>();
+        String sql = "SELECT * FROM lieu WHERE nom LIKE ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, "%" + nom + "%");
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Lieu lieu = new Lieu(
+                        rs.getInt("id_lieu"),
+                        rs.getString("nom"),
+                        rs.getString("adresse"),
+                        rs.getString("ville"),
+                        rs.getString("code_postal")
+                    );
+                    lieux.add(lieu);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lieux;
+    }
 
     public boolean deleteLieu(int idLieu) {
         String sql = "DELETE FROM " + TB_NAME + " WHERE " + TB_ID_LIEU + " = ?";
