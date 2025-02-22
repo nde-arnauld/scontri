@@ -8,9 +8,11 @@ import utils.Password;
 
 public class UserController {
 	private UserDAO userDAO;
+	private User user;
 
 	public UserController(UserDAO userDAO) {
 		this.userDAO = userDAO;
+		user = new User();
 	}
 
 	public boolean createUser(String nom, String prenom, String telephone, String email, String adresse,
@@ -22,8 +24,14 @@ public class UserController {
 
 		User user = new User(nom, prenom, telephone, email, adresse, motDePasse, dateNaissance, dateInscription,
 				roleSysteme);
-
 		return userDAO.addUser(user);
+	}
+
+	public User getLoggedUser() {
+		if (user.getIdUser() != 0) {
+			return user;
+		}
+		return null;
 	}
 
 	public boolean loginUser(String email, String motDePasse) {
@@ -38,6 +46,8 @@ public class UserController {
 		if (!Password.verifierMotDePasse(motDePasse, userPassword)) {
 			return false;
 		}
+
+		user = userDAO.getUserByEmail(email);
 
 		return true;
 	}

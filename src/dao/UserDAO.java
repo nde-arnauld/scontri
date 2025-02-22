@@ -11,17 +11,17 @@ import java.time.LocalDate;
 import models.User;
 
 public class UserDAO {
-	private final String TB_NAME = "utilisateur";
-	private final String TB_ID_USER = "id_user";
-	private final String TB_NOM = "nom";
-	private final String TB_PRENOM = "prenom";
-	private final String TB_TELEPHONE = "telephone";
-	private final String TB_EMAIL = "email";
-	private final String TB_ADRESSE = "adresse";
-	private final String TB_MOT_DE_PASSE = "mot_de_passe";
-	private final String TB_DATE_NAISSANCE = "date_naissance";
-	private final String TB_DATE_INSCRIPTION = "date_inscription";
-	private final String TB_ROLE_SYSTEME = "role_systeme";
+	public static final String TB_NAME = "utilisateur";
+	public static final String TB_ID_USER = "id_user";
+	public static final String TB_NOM = "nom";
+	public static final String TB_PRENOM = "prenom";
+	public static final String TB_TELEPHONE = "telephone";
+	public static final String TB_EMAIL = "email";
+	public static final String TB_ADRESSE = "adresse";
+	public static final String TB_MOT_DE_PASSE = "mot_de_passe";
+	public static final String TB_DATE_NAISSANCE = "date_naissance";
+	public static final String TB_DATE_INSCRIPTION = "date_inscription";
+	public static final String TB_ROLE_SYSTEME = "role_systeme";
 
 	private Connection conn;
 

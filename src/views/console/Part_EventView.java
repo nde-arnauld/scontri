@@ -16,11 +16,22 @@ public class Part_EventView {
         scanner = new Scanner(System.in);
     }
 
-    public void afficherEvenements(List<Event> evenements) {
-        System.out.println("Liste des événements disponibles :");
+    /**
+     * Méthodes pour afficher une liste des évènements
+     * 
+     * @param evenements : La liste des évènements.
+     * @param message    : Une précision sur les évènements qui seront affichés.
+     */
+    public void afficherEvenements(List<Event> evenements, String message) {
+        if (evenements.size() <= 0) {
+            System.out.println("Aucun évènement disponible pour le moment.");
+            return;
+        }
+
+        System.out.println(message);
 
         for (Event event : evenements) {
-            System.out.print("- ");
+            System.out.print("<-> ");
             System.out.println(event);
         }
     }

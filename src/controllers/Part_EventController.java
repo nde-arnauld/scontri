@@ -12,7 +12,7 @@ public class Part_EventController {
 
     private Part_EventDAO partEventDAO;
 
-    public Part_EventController(List<User> participants, List<Event> evenements, EventController eventController,
+    public Part_EventController(EventController eventController,
             Part_EventDAO partEventDAO) {
         this.eventController = eventController;
 
@@ -26,7 +26,7 @@ public class Part_EventController {
 
         Event event = eventController.getEventById(idEvent);
 
-        if (!(event.getStatus() == "actif")) {
+        if (event.getStatus().compareTo("actif") != 0) {
             return false;
         }
 
@@ -43,11 +43,11 @@ public class Part_EventController {
         return partEventDAO.removePartEvent(idUser, idEvent);
     }
 
-    public List<Part_Event> getEventsForUser(int idUser) {
+    public List<Event> getEventsForUser(int idUser) {
         return partEventDAO.getEventsForUser(idUser);
     }
 
     public List<User> getUsersForEvent(int idEvent) {
-        return partEventDAO.getParticipantsForEvent(idEvent);
+        return partEventDAO.getParticipantsFromEvent(idEvent);
     }
 }

@@ -11,10 +11,9 @@ import models.Categorie;
 
 public class CategorieDAO {
 
-
-    private final String TB_NAME = "categorie";
-    private final String TB_ID_CAT = "id_cat";
-    private final String TB_NOM = "nom";
+    public static final String TB_NAME = "categorie";
+    public static final String TB_ID_CAT = "id_cat";
+    public static final String TB_NOM = "nom";
 
     private Connection conn;
 
@@ -90,16 +89,16 @@ public class CategorieDAO {
             e.printStackTrace();
             return false;
         }
-    } 
-    
+    }
+
     public List<Categorie> getAllCategories() {
         List<Categorie> categories = new ArrayList<>();
         String sql = "SELECT " + TB_ID_CAT + ", " + TB_NOM + " FROM " + TB_NAME;
-        
+
         try {
-        	PreparedStatement stmt = conn.prepareStatement(sql);
+            PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
-            
+
             while (rs.next()) {
                 int id = rs.getInt(TB_ID_CAT);
                 String nom = rs.getString(TB_NOM);
@@ -109,10 +108,8 @@ public class CategorieDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        
+
         return categories;
     }
-    
-    
-    
+
 }

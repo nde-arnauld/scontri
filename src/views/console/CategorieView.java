@@ -1,7 +1,5 @@
 package views.console;
 
-
-
 import java.util.List;
 import java.util.Scanner;
 
@@ -17,6 +15,7 @@ public class CategorieView {
         this.categorieController = categorieController;
         scanner = new Scanner(System.in);
     }
+        
 
     public void ajouterUneCategorie() {
     	System.out.println("\nAJOUTER UNE NOUVELLE CATEGORIE:");
@@ -61,7 +60,7 @@ public class CategorieView {
                 "Échec de la suppression de la catégorie. Vérifiez l'ID.");
     }
     
-    public void listerCategories() {
+    public  void listerCategories() {
         List<Categorie> categories = categorieController.listCategories();
         
         if (categories.isEmpty()) {
@@ -72,5 +71,6 @@ public class CategorieView {
                 System.out.println(categorie.getIdCat() + "- "+categorie.getNom());
             }
         }
- }
+    }
+    
 }

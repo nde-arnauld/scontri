@@ -2,29 +2,27 @@ package dao;
 
 import java.sql.Timestamp;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import models.Event;
 
 public class EventDAO {
-    private final String TB_NAME = "evenement";
-    private final String TB_ID_EVENT = "id_event";
-    private final String TB_NOM = "nom";
-    private final String TB_DESCRIPTION = "description";
-    private final String TB_CAPACITE = "capacite";
-    private final String TB_PRIX = "prix";
-    private final String TB_DATE_DEBUT = "date_debut";
-    private final String TB_DATE_FIN = "date_fin";
-    private final String TB_DATE_CREATION = "date_creation";
-    private final String TB_STATUS = "status";
-    private final String TB_ID_LIEU = "id_lieu";
-    private final String TB_ID_CAT = "id_cat";
+    public static final String TB_NAME = "evenement";
+    public static final String TB_ID_EVENT = "id_event";
+    public static final String TB_NOM = "nom";
+    public static final String TB_DESCRIPTION = "description";
+    public static final String TB_CAPACITE = "capacite";
+    public static final String TB_PRIX = "prix";
+    public static final String TB_DATE_DEBUT = "date_debut";
+    public static final String TB_DATE_FIN = "date_fin";
+    public static final String TB_DATE_CREATION = "date_creation";
+    public static final String TB_STATUS = "status";
+    public static final String TB_ID_LIEU = "id_lieu";
+    public static final String TB_ID_CAT = "id_cat";
 
     private Connection conn;
 
@@ -142,7 +140,7 @@ public class EventDAO {
 
     public List<Event> getAllEvents() {
         List<Event> events = new ArrayList<>();
-        String sql = "SELECT * FROM " + TB_NAME;
+        String sql = "SELECT * FROM " + TB_NAME + " WHERE status = 'actif'";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql);
                 ResultSet rs = stmt.executeQuery()) {
