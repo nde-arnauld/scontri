@@ -28,7 +28,7 @@ public class Part_EventView {
             return;
         }
 
-        System.out.println(message);
+        System.out.println("\n" + message);
 
         for (Event event : evenements) {
             System.out.print("<-> ");

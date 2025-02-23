@@ -18,8 +18,8 @@ public class UserView {
     }
 
     public void ajouterUtilisateur() {
-        System.out.println("\nAJOUT D'UN NOUVEL UTILISATEUR:");
-        System.out.println("------------------------------\n");
+        System.out.println("\nCREEZ VOTRE COMPTE :");
+        System.out.println("----------------------\n");
 
         System.out.print("Nom: ");
         String nom = scanner.nextLine();
@@ -42,8 +42,9 @@ public class UserView {
 
         LocalDate dateInscription = LocalDate.now();
 
-        System.out.print("Rôle (admin/user): ");
-        String roleSystem = scanner.nextLine();
+        // System.out.print("Rôle (admin/user): ");
+        // String roleSystem = scanner.nextLine();
+        String roleSystem = "user";
 
         boolean result = userController.createUser(nom, prenom, telephone, email, adresse, motDePasse, dateNaissance,
                 dateInscription, roleSystem);
@@ -108,10 +109,10 @@ public class UserView {
         System.out.println("\nSE CONNECTER : ");
         System.out.println("-----------\n");
 
-        System.out.println("Email : ");
+        System.out.print("Email : ");
         String email = scanner.nextLine();
 
-        System.out.println("Mot de passe : ");
+        System.out.print("Mot de passe : ");
         String motDePasse = scanner.nextLine();
 
         boolean result = userController.loginUser(email, motDePasse);
