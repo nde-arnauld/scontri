@@ -114,6 +114,7 @@ public class UserView {
 
         System.out.print("Mot de passe : ");
         String motDePasse = scanner.nextLine();
+        System.out.println("pwd console: '"+ motDePasse +"'");
 
         boolean result = userController.loginUser(email, motDePasse);
 

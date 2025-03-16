@@ -19,7 +19,6 @@ public class Database {
                 Class.forName("com.mysql.cj.jdbc.Driver");
 
                 connection = DriverManager.getConnection(URL, USER, PASSWORD);
-                System.out.println("Connexion à la base de données réussie !");
             } catch (ClassNotFoundException e) {
                 System.err.println("Erreur : Driver JDBC MySQL non trouvé !");
                 e.printStackTrace();
@@ -37,7 +36,6 @@ public class Database {
             try {
                 connection.close();
                 connection = null;
-                System.out.println("Connexion fermée !");
             } catch (SQLException e) {
                 System.err.println("Erreur lors de la fermeture de la connexion !");
                 e.printStackTrace();
