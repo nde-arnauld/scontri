@@ -41,9 +41,11 @@ public class UserController {
 		}
 
 		String userPassword = userDAO.userPassword(email);
+		System.out.println("mdp: '"+ motDePasse +"' , hpwd: "+ userPassword);
 
 		// On compare les mots de passe
 		if (!Password.verifierMotDePasse(motDePasse, userPassword)) {
+			System.out.println("Mot de passe incorrecte");
 			return false;
 		}
 
