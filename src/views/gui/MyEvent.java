@@ -2,11 +2,9 @@ package views.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.EventQueue;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Connection;
-import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -14,11 +12,15 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
+import controllers.EventController;
+import controllers.UserController;
 import dao.Database;
 import dao.EventDAO;
+import dao.UserDAO;
 import models.Event;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.Font;
 
 public class MyEvent extends JFrame {
     
@@ -29,29 +31,48 @@ public class MyEvent extends JFrame {
     private JLabel lblNom, lblDescription, lblCapacite, lblPrix, lblDateDebut, lblDateFin;
     private List<Event> events; // Liste des événements récupérés de la BDD
     DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-
+    
+    private Connection connection;
+    private EventDAO eventDAO;
+    private UserDAO userDAO;
+    private EventController eventController;
+    private UserController userController;
 
     /**
      * Launch the application.
      */
-    public static void main(String[] args) {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    MyEvent frame = new MyEvent();
-                    frame.setVisible(true);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
+//    public static void main(String[] args) {
+//        EventQueue.invokeLater(new Runnable() {
+//            public void run() {
+//                try {
+//                    MyEvent frame = new MyEvent();
+//                    frame.setVisible(true);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+//    }
 
     /**
      * Create the frame.
      */
     public MyEvent() {
-        setTitle("Mes Evenements");
+    	
+		
+		this.connection = Database.getConnection();
+		this.eventDAO = new EventDAO(connection);
+		this.userDAO = new UserDAO(connection);
+		this.eventController = new EventController(eventDAO);
+		this.userController = new UserController(userDAO);
+		
+		initialize();
+    	        
+    }
+
+    private void initialize() {
+    	
+    	setTitle("Mes Evenements");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 50, 1024, 650);
         contentPane = new JPanel();
@@ -107,28 +128,49 @@ public class MyEvent extends JFrame {
         panelDetails.setLayout(null);
         
         lblNom = new JLabel("Nom de l'évenement");
-        lblNom.setBounds(71, 21, 101, 14);
+        lblNom.setHorizontalAlignment(SwingConstants.CENTER);
+        lblNom.setFont(new Font("Tahoma", Font.BOLD, 11));
+        lblNom.setBounds(10, 63, 329, 23);
         panelDetails.add(lblNom);
         
         lblDescription = new JLabel("Description");
-        lblDescription.setBounds(71, 47, 190, 86);
+        lblDescription.setHorizontalAlignment(SwingConstants.CENTER);
+        lblDescription.setFont(new Font("Tahoma", Font.PLAIN, 11));
+        lblDescription.setBounds(10, 123, 329, 86);
         panelDetails.add(lblDescription);
         
         lblCapacite = new JLabel("Capacité");
-        lblCapacite.setBounds(71, 130, 101, 14);
+        lblCapacite.setFont(new Font("Tahoma", Font.BOLD, 11));
+        lblCapacite.setHorizontalAlignment(SwingConstants.CENTER);
+        lblCapacite.setBounds(10, 264, 329, 14);
         panelDetails.add(lblCapacite);
         
         lblPrix = new JLabel("Prix");
-        lblPrix.setBounds(71, 175, 101, 14);
+        lblPrix.setHorizontalAlignment(SwingConstants.CENTER);
+        lblPrix.setFont(new Font("Tahoma", Font.BOLD, 11));
+        lblPrix.setBounds(10, 310, 329, 14);
         panelDetails.add(lblPrix);
         
         lblDateDebut = new JLabel("Date de début");
-        lblDateDebut.setBounds(71, 222, 101, 14);
+        lblDateDebut.setHorizontalAlignment(SwingConstants.CENTER);
+        lblDateDebut.setBounds(29, 346, 123, 14);
         panelDetails.add(lblDateDebut);
         
         lblDateFin = new JLabel("Date de fin");
-        lblDateFin.setBounds(71, 261, 101, 14);
+        lblDateFin.setHorizontalAlignment(SwingConstants.CENTER);
+        lblDateFin.setBounds(181, 346, 138, 14);
         panelDetails.add(lblDateFin);
+        
+        JLabel lblNewLabel = new JLabel("Du :");
+        lblNewLabel.setBounds(10, 346, 49, 14);
+        panelDetails.add(lblNewLabel);
+        
+        JButton btnListPart = new JButton("Liste des participants");
+        btnListPart.setForeground(Color.WHITE);
+        btnListPart.setBorderPainted(false);
+        btnListPart.setBackground(new Color(0, 0, 128));
+        btnListPart.setBounds(53, 448, 250, 28);
+        panelDetails.add(btnListPart);
 
        
         JPanel panel_2 = new JPanel();
@@ -169,16 +211,12 @@ public class MyEvent extends JFrame {
 		panel_2.add(btnClose);
         
     }
-
+    
     /**
      * Charge les événements depuis la base de données et remplit le tableau.
      */
     private void loadEventData() {
-
-        try(Connection connection = Database.getConnection() ) {
-            EventDAO eventDAO = new EventDAO(connection);
-            events = eventDAO.getAllEvents();
-
+           events = eventController.listEvents();
             for (Event event : events) {
 
                 Object[] rowData = {
@@ -189,26 +227,23 @@ public class MyEvent extends JFrame {
                 };
                 tableModel.addRow(rowData);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Erreur lors du chargement des événements", "Erreur", JOptionPane.ERROR_MESSAGE);
-        }
     }
+    
+
 
     /**
      * Affiche les détails d'un événement dans les labels.
      */
     private void showDetails(int selectedEventId) {
 
-//
         for (Event event : events) {
             if (event.getIdEvent() == selectedEventId) {
-                lblNom.setText("Nom: " + event.getNom());
-                lblDescription.setText("Description: " + event.getDescription());
-                lblCapacite.setText("Capacité: " + event.getCapacite());
+                lblNom.setText(event.getNom());
+                lblDescription.setText(event.getDescription());
+                lblCapacite.setText("Nombre de place disponible: " + event.getCapacite());
                 lblPrix.setText("Prix: " + event.getPrix() + " €");
-                lblDateDebut.setText("Début: " + event.getDateDebut().format(outputFormatter));
-                lblDateFin.setText("Fin: " + event.getDateFin().format(outputFormatter));
+                lblDateDebut.setText(event.getDateDebut().format(outputFormatter));
+                lblDateFin.setText(event.getDateFin().format(outputFormatter));
                 return;
             }
         }

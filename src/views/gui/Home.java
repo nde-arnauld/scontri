@@ -3,6 +3,10 @@ package views.gui;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+
 
 public class Home {
 
@@ -36,8 +40,27 @@ public class Home {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 450, 300);
+        frame.setBounds(100, 50, 1024, 650);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		JMenuBar menuBar = new JMenuBar();
+		frame.setJMenuBar(menuBar);
+		
+		// Création du menu "Fichier"
+		JMenu menuFichier = new JMenu("Fichier");
+		menuBar.add(menuFichier);
+
+		// Création de l'item "Exporter"
+		JMenuItem itemExporter = new JMenuItem("Mes évenements");
+		menuFichier.add(itemExporter);
+
+		// Ajouter une action lorsqu'on clique sur "Exporter"
+		itemExporter.addActionListener(e -> {
+			MyEvent myEvent = new MyEvent();
+			myEvent.setVisible(true);
+		});
+
+		
 	}
 
 }
