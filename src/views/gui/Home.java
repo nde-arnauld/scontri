@@ -47,17 +47,23 @@ public class Home {
 		frame.setJMenuBar(menuBar);
 		
 		// Création du menu "Fichier"
-		JMenu menuFichier = new JMenu("Menu");
-		menuBar.add(menuFichier);
+		JMenu menuMesEvents = new JMenu("Evènements");
+		menuBar.add(menuMesEvents);
 
-		// Création de l'item "Exporter"
-		JMenuItem itemExporter = new JMenuItem("Mes évenements");
-		menuFichier.add(itemExporter);
+		JMenuItem mesEvents = new JMenuItem("Mes évenements");
+		JMenuItem mesRequests = new JMenuItem("Mes Participations");
 
-		// Ajouter une action lorsqu'on clique sur "Exporter"
-		itemExporter.addActionListener(e -> {
+		menuMesEvents.add(mesEvents);
+		menuMesEvents.add(mesRequests);
+		
+
+		// Ajouter une action lorsqu'on clique 
+		mesEvents.addActionListener(e -> {
 			MyEvent myEvent = new MyEvent(1);
 			myEvent.setVisible(true);
+		});
+		mesRequests.addActionListener(e -> {
+			
 		});
 
 		
