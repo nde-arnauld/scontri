@@ -5,3 +5,5 @@ bin/
 .vscode
 .gitignore
 .metadata
+src/dao/Database.java
+media/
