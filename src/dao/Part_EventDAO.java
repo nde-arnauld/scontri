@@ -6,7 +6,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import models.Event;
 import models.Part_Event;
@@ -65,6 +67,30 @@ public class Part_EventDAO {
             return false;
         }
     }
+    
+    public boolean updatePartEventStatus(int idUser, int idEvent, String status) {
+        String sql = "UPDATE " + TB_NAME + " SET " + TB_STATUS + " = ? WHERE " + TB_ID_USER + " = ? AND " + TB_ID_EVENT
+                + " = ?";
+        try {
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, status);
+            stmt.setInt(2, idUser);
+            stmt.setInt(3, idEvent);
+            int result = stmt.executeUpdate();
+            return result > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    
+ 
+    
+    
+    
+    
+    
 
     public Part_Event getPartEvent(int idUser, int idEvent) {
         String sql = "SELECT * FROM " + TB_NAME + " WHERE " + TB_ID_USER + " = ? AND " + TB_ID_EVENT + " = ?";
@@ -109,6 +135,42 @@ public class Part_EventDAO {
                         rs.getDate("date_inscription").toLocalDate(),
                         rs.getString("role_systeme"));
                 participants.add(user);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return participants;
+    }
+    
+    // récupère les participants et le status de leurs demandes
+    public List<Map<String, Object>> getParticipantsWithStatusFromEvent(int idEvent) {
+        List<Map<String, Object>> participants = new ArrayList<>();
+        String sql = "SELECT u.*, p." + TB_STATUS + ", p." + TB_PRESENCE + ", p." + TB_DATE_PART + " FROM " + TB_NAME + " p " +
+                "JOIN Utilisateur u ON p.id_user = u.id_user " +
+                "WHERE p.id_event = ? AND ( "+ TB_STATUS +" = ? OR "+ TB_STATUS +" = ? )";
+        try {
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, idEvent);
+            stmt.setString(2, PartEventStatus.VALIDEE.toString());
+            stmt.setString(3, PartEventStatus.EN_ATTENTE.toString());
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Map<String, Object> participantData = new HashMap<>();
+                participantData.put("id_user", rs.getInt("id_user"));
+                participantData.put("nom", rs.getString("nom"));
+                participantData.put("prenom", rs.getString("prenom"));
+                participantData.put("telephone", rs.getString("telephone"));
+                participantData.put("email", rs.getString("email"));
+                participantData.put("adresse", rs.getString("adresse"));
+                participantData.put("mot_de_passe", rs.getString("mot_de_passe"));
+                participantData.put("date_naissance", rs.getDate("date_naissance").toLocalDate());
+                participantData.put("date_inscription", rs.getDate("date_inscription").toLocalDate());
+                participantData.put("role_systeme", rs.getString("role_systeme"));
+                participantData.put("status", rs.getString(TB_STATUS));
+                participantData.put("presence", rs.getString(TB_PRESENCE));
+                participantData.put("date_part", rs.getObject(TB_DATE_PART, LocalDateTime.class));
+                participants.add(participantData);
             }
         } catch (SQLException e) {
             e.printStackTrace();

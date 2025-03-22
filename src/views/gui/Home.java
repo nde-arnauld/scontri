@@ -50,7 +50,7 @@ public class Home {
 		JMenu menuMesEvents = new JMenu("Evènements");
 		menuBar.add(menuMesEvents);
 
-		JMenuItem mesEvents = new JMenuItem("Mes évenements");
+		JMenuItem mesEvents = new JMenuItem("Mes évènements");
 		JMenuItem mesRequests = new JMenuItem("Mes Participations");
 
 		menuMesEvents.add(mesEvents);

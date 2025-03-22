@@ -7,6 +7,7 @@ import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -19,7 +20,6 @@ import dao.EventDAO;
 import dao.Org_EventDAO;
 import dao.Part_EventDAO;
 import models.Event;
-import models.User;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -187,15 +187,15 @@ public class MyEvent extends JFrame {
                 // Récupérer la liste des participants 
                 part_EventDAO = new Part_EventDAO(connection);
                 part_EventController = new Part_EventController(null, part_EventDAO);
-                List<User> usersList = part_EventController.getUsersForEvent(selectedEventId);
+                List<Map<String, Object>> participantsInfo = part_EventController.getParticipantsInfoForEvent(selectedEventId);
                 
              // Créer la boîte de dialogue modale
                 JDialog dialog = new JDialog(MyEvent.this, "Gestion des participants", true);
                 dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
                 dialog.setSize(600, 500);
                 dialog.setLocationRelativeTo(MyEvent.this);
-                
-                ManagePartEvent managePartEvent = new ManagePartEvent(usersList);
+                                
+                ManagePartEvent managePartEvent = new ManagePartEvent(participantsInfo,selectedEventId  ,connection);
                 dialog.setContentPane(managePartEvent.getContentPane());
                 dialog.setVisible(true);
             }
@@ -299,7 +299,6 @@ public class MyEvent extends JFrame {
                     @Override
                     public void windowClosed(java.awt.event.WindowEvent windowEvent) {
                         // Recharger les données de la table après la fermeture du dialogue
-                        tableModel.setRowCount(0);
                         loadEventData();
                     }
                 });
@@ -337,7 +336,6 @@ public class MyEvent extends JFrame {
 
 		            if (deleted) {
 		                JOptionPane.showMessageDialog(null, "Événement supprimé avec succès.", "Succès", JOptionPane.INFORMATION_MESSAGE);
-		                tableModel.setRowCount(0);
 		                loadEventData(); // Rafraîchir la liste après suppression
 		            } else {
 		                JOptionPane.showMessageDialog(null, "Erreur lors de la suppression.", "Erreur", JOptionPane.ERROR_MESSAGE);
@@ -370,7 +368,8 @@ public class MyEvent extends JFrame {
      * Charge les événements depuis la base de données et remplit le tableau.
      */
     private void loadEventData() {
-    	
+        tableModel.setRowCount(0); //effacer les donnee d'abord
+
 	   events = org_EventController.getEventCreatedByOrg(idLoggedUser);          
 	   
 	    for (Event event : events) {
