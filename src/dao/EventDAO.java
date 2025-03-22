@@ -106,10 +106,11 @@ public class EventDAO {
     }
 
     public boolean deleteEvent(int eventId) {
-        String sql = "DELETE FROM " + TB_NAME + " WHERE " + TB_ID_EVENT + " = ?";
+        String sql = "UPDATE " + TB_NAME + " SET " + TB_STATUS +" = ? WHERE " + TB_ID_EVENT + " = ?";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, eventId);
+        	stmt.setString(1, "supprime");
+            stmt.setInt(2, eventId);
 
             int result = stmt.executeUpdate();
             return result > 0;

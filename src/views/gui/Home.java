@@ -47,7 +47,7 @@ public class Home {
 		frame.setJMenuBar(menuBar);
 		
 		// Création du menu "Fichier"
-		JMenu menuFichier = new JMenu("Fichier");
+		JMenu menuFichier = new JMenu("Menu");
 		menuBar.add(menuFichier);
 
 		// Création de l'item "Exporter"
@@ -56,7 +56,7 @@ public class Home {
 
 		// Ajouter une action lorsqu'on clique sur "Exporter"
 		itemExporter.addActionListener(e -> {
-			MyEvent myEvent = new MyEvent();
+			MyEvent myEvent = new MyEvent(1);
 			myEvent.setVisible(true);
 		});
 

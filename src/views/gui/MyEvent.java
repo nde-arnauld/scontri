@@ -13,14 +13,21 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 import controllers.EventController;
+import controllers.Org_EventController;
+import controllers.Part_EventController;
 import controllers.UserController;
 import dao.Database;
 import dao.EventDAO;
+import dao.Org_EventDAO;
+import dao.Part_EventDAO;
 import dao.UserDAO;
 import models.Event;
+import models.User;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
+import java.awt.desktop.UserSessionListener;
 
 public class MyEvent extends JFrame {
     
@@ -28,15 +35,17 @@ public class MyEvent extends JFrame {
     private JPanel contentPane;
     private JTable table;
     private DefaultTableModel tableModel;
-    private JLabel lblNom, lblDescription, lblCapacite, lblPrix, lblDateDebut, lblDateFin;
+    private JLabel lblNom, lblCapacite, lblPrix, lblDateDebut, lblDateFin;
+    private JTextArea tADescription;
     private List<Event> events; // Liste des événements récupérés de la BDD
     DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     
     private Connection connection;
-    private EventDAO eventDAO;
-    private UserDAO userDAO;
-    private EventController eventController;
-    private UserController userController;
+    private Org_EventDAO org_EventDAO;
+    private Part_EventDAO part_EventDAO;
+    private Org_EventController org_EventController;
+    private Part_EventController part_EventController;
+    private int idLoggedUser;
 
     /**
      * Launch the application.
@@ -57,14 +66,13 @@ public class MyEvent extends JFrame {
     /**
      * Create the frame.
      */
-    public MyEvent() {
+    public MyEvent(int idLoggedUser) {
     	
 		
 		this.connection = Database.getConnection();
-		this.eventDAO = new EventDAO(connection);
-		this.userDAO = new UserDAO(connection);
-		this.eventController = new EventController(eventDAO);
-		this.userController = new UserController(userDAO);
+		this.org_EventDAO = new Org_EventDAO(connection);
+		this.org_EventController = new Org_EventController(org_EventDAO);
+		this.idLoggedUser = idLoggedUser;
 		
 		initialize();
     	        
@@ -130,47 +138,101 @@ public class MyEvent extends JFrame {
         lblNom = new JLabel("Nom de l'évenement");
         lblNom.setHorizontalAlignment(SwingConstants.CENTER);
         lblNom.setFont(new Font("Tahoma", Font.BOLD, 11));
-        lblNom.setBounds(10, 63, 329, 23);
+        lblNom.setBounds(10, 23, 329, 23);
         panelDetails.add(lblNom);
         
-        lblDescription = new JLabel("Description");
-        lblDescription.setHorizontalAlignment(SwingConstants.CENTER);
-        lblDescription.setFont(new Font("Tahoma", Font.PLAIN, 11));
-        lblDescription.setBounds(10, 123, 329, 86);
-        panelDetails.add(lblDescription);
+//        lblDescription = new JLabel("Description");
+//        lblDescription.setHorizontalAlignment(SwingConstants.CENTER);
+//        lblDescription.set
+//        lblDescription.setFont(new Font("Tahoma", Font.PLAIN, 11));
+//        lblDescription.setBounds(10, 123, 329, 86);
+//        panelDetails.add(lblDescription);
         
         lblCapacite = new JLabel("Capacité");
         lblCapacite.setFont(new Font("Tahoma", Font.BOLD, 11));
         lblCapacite.setHorizontalAlignment(SwingConstants.CENTER);
-        lblCapacite.setBounds(10, 264, 329, 14);
+        lblCapacite.setBounds(10, 160, 329, 14);
         panelDetails.add(lblCapacite);
         
         lblPrix = new JLabel("Prix");
         lblPrix.setHorizontalAlignment(SwingConstants.CENTER);
         lblPrix.setFont(new Font("Tahoma", Font.BOLD, 11));
-        lblPrix.setBounds(10, 310, 329, 14);
+        lblPrix.setBounds(10, 193, 329, 14);
         panelDetails.add(lblPrix);
         
         lblDateDebut = new JLabel("Date de début");
         lblDateDebut.setHorizontalAlignment(SwingConstants.CENTER);
-        lblDateDebut.setBounds(29, 346, 123, 14);
+        lblDateDebut.setBounds(41, 232, 123, 14);
         panelDetails.add(lblDateDebut);
         
         lblDateFin = new JLabel("Date de fin");
         lblDateFin.setHorizontalAlignment(SwingConstants.CENTER);
-        lblDateFin.setBounds(181, 346, 138, 14);
+        lblDateFin.setBounds(205, 232, 138, 14);
         panelDetails.add(lblDateFin);
         
         JLabel lblNewLabel = new JLabel("Du :");
-        lblNewLabel.setBounds(10, 346, 49, 14);
+        lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        lblNewLabel.setBounds(2, 232, 37, 14);
         panelDetails.add(lblNewLabel);
         
         JButton btnListPart = new JButton("Liste des participants");
+        btnListPart.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                // Vérifier si une ligne est sélectionnée
+                int selectedRow = table.getSelectedRow();
+                if (selectedRow == -1) {
+                    JOptionPane.showMessageDialog(null, "Veuillez sélectionner un événement.");
+                    return;
+                }
+
+                // Récupérer l'ID de l'événement sélectionné
+                int selectedEventId = (int) table.getValueAt(selectedRow, 0); // Supposons que l'ID est en première colonne
+
+                // Récupérer la liste des participants 
+                part_EventDAO = new Part_EventDAO(connection);
+                part_EventController = new Part_EventController(null, part_EventDAO);
+                List<User> usersList = part_EventController.getUsersForEvent(selectedEventId);
+                
+             // Créer la boîte de dialogue modale
+                JDialog dialog = new JDialog(MyEvent.this, "Gestion des participants", true);
+                dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+                dialog.setSize(600, 500);
+                dialog.setLocationRelativeTo(MyEvent.this);
+                
+                ManagePartEvent managePartEvent = new ManagePartEvent(usersList);
+                dialog.setContentPane(managePartEvent.getContentPane());
+                dialog.setVisible(true);
+            }
+        });
+
         btnListPart.setForeground(Color.WHITE);
         btnListPart.setBorderPainted(false);
         btnListPart.setBackground(new Color(0, 0, 128));
-        btnListPart.setBounds(53, 448, 250, 28);
+        btnListPart.setBounds(53, 451, 250, 28);
         panelDetails.add(btnListPart);
+        
+        tADescription = new JTextArea();
+        tADescription.setBounds(10, 57, 329, 92);
+        tADescription.setLineWrap(true);  // Active le retour à la ligne automatique
+        tADescription.setWrapStyleWord(true); // Coupe proprement aux mots
+        tADescription.setEditable(false); // Rend le texte non éditable
+        tADescription.setOpaque(false); // Fond transparent (comme JLabel)
+        tADescription.setFont(new Font("Tahoma", Font.PLAIN, 11));
+        // Centrer le texte manuellement
+        tADescription.setAlignmentX(JTextArea.CENTER_ALIGNMENT);
+        tADescription.setAlignmentY(JTextArea.CENTER_ALIGNMENT);
+        panelDetails.add(tADescription);
+        
+        JLabel lblAu = new JLabel("au");
+        lblAu.setHorizontalAlignment(SwingConstants.CENTER);
+        lblAu.setBounds(166, 232, 37, 14);
+        panelDetails.add(lblAu);
+        
+        JLabel lblNewLabel_1 = new JLabel("");
+        lblNewLabel_1.setIcon(new ImageIcon("D:\\UNIVERSITE_DE_CORSE\\SECOND SEMESTER\\PROJET-IHM\\SONCTRI\\scontri\\media\\laCarte.png"));
+        lblNewLabel_1.setHorizontalAlignment(SwingConstants.CENTER);
+        lblNewLabel_1.setBounds(10, 271, 329, 156);
+        panelDetails.add(lblNewLabel_1);
 
        
         JPanel panel_2 = new JPanel();
@@ -179,6 +241,19 @@ public class MyEvent extends JFrame {
 		panel_2.setLayout(null);
 		
 		JButton btnCreateEvent = new JButton("Créer un évenement");
+		btnCreateEvent.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				 // Créer la boîte de dialogue modale
+                JDialog dialog = new JDialog(MyEvent.this, "Créer un évenement", true);
+                dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+                dialog.setSize(600, 500);
+                dialog.setLocationRelativeTo(MyEvent.this);
+                
+                CreateUpdateEvent createUpdateEvent  = new CreateUpdateEvent();
+                dialog.setContentPane(createUpdateEvent.getContentPane());
+                dialog.setVisible(true);
+			}
+		});
 		btnCreateEvent.setBorderPainted(false);
 		btnCreateEvent.setForeground(Color.WHITE);
 		btnCreateEvent.setBackground(new Color(0, 0, 128));
@@ -186,6 +261,40 @@ public class MyEvent extends JFrame {
 		panel_2.add(btnCreateEvent);
 		
 		JButton btnUpdateEvent = new JButton("Modifier");
+		btnUpdateEvent.addActionListener(new ActionListener() {
+		    public void actionPerformed(ActionEvent e) {
+		        // Vérifier si une ligne est sélectionnée
+		        int selectedRow = table.getSelectedRow();
+		        if (selectedRow == -1) {
+		            JOptionPane.showMessageDialog(null, "Veuillez sélectionner un événement.");
+		            return;
+		        }
+
+		        // Récupérer l'ID de l'événement sélectionné
+		        int selectedEventId = (int) table.getValueAt(selectedRow, 0); // Supposons que l'ID est en première colonne
+
+		        // Récupérer l'événement depuis la base de données
+		        EventDAO eventDAO = new EventDAO(connection);
+		        Event selectedEvent = eventDAO.getEventById(selectedEventId);
+
+		        if (selectedEvent == null) {
+		            JOptionPane.showMessageDialog(null, "Erreur : Impossible de trouver l'événement sélectionné.");
+		            return;
+		        }
+
+		        // Créer la boîte de dialogue modale
+		        JDialog dialog = new JDialog(MyEvent.this, "Modifier un événement", true);
+		        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		        dialog.setSize(600, 500);
+		        dialog.setLocationRelativeTo(MyEvent.this);
+
+		        // Passer l'événement sélectionné à la fenêtre de modification
+		        CreateUpdateEvent createUpdateEvent = new CreateUpdateEvent(selectedEvent);
+		        dialog.setContentPane(createUpdateEvent.getContentPane());
+		        dialog.setVisible(true);
+		    }
+		});
+
 		btnUpdateEvent.setForeground(Color.WHITE);
 		btnUpdateEvent.setBorderPainted(false);
 		btnUpdateEvent.setBackground(new Color(0, 0, 128));
@@ -193,6 +302,39 @@ public class MyEvent extends JFrame {
 		panel_2.add(btnUpdateEvent);
 		
 		JButton btnDeleteEvent = new JButton("Suprimer");
+
+		btnDeleteEvent.addActionListener(new ActionListener() {
+		    public void actionPerformed(ActionEvent e) {
+		        int selectedRow = table.getSelectedRow(); // Récupérer la ligne sélectionnée
+		        if (selectedRow == -1) {
+		            JOptionPane.showMessageDialog(null, "Veuillez sélectionner un événement à supprimer.", 
+		                                          "Aucune sélection", JOptionPane.WARNING_MESSAGE);
+		            return;
+		        }
+
+		        // Récupérer l'ID de l'événement à supprimer
+		        int eventId = (int) table.getValueAt(selectedRow, 0);
+
+		        // Demander confirmation
+		        int confirm = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment supprimer cet événement ?", 
+		                                                    "Confirmation", JOptionPane.YES_NO_OPTION);
+		        if (confirm == JOptionPane.YES_OPTION) {
+		            // Supprimer l'événement de la base de données
+		            EventDAO eventDAO = new EventDAO(connection);
+		            boolean deleted = eventDAO.deleteEvent(eventId);
+
+		            if (deleted) {
+		                JOptionPane.showMessageDialog(null, "Événement supprimé avec succès.", "Succès", JOptionPane.INFORMATION_MESSAGE);
+		                tableModel.setRowCount(0);
+		                loadEventData(); // Rafraîchir la liste après suppression
+		            } else {
+		                JOptionPane.showMessageDialog(null, "Erreur lors de la suppression.", "Erreur", JOptionPane.ERROR_MESSAGE);
+		            }
+		        }
+		    }
+		});
+
+		
 		btnDeleteEvent.setForeground(Color.WHITE);
 		btnDeleteEvent.setBorderPainted(false);
 		btnDeleteEvent.setBackground(new Color(232, 0, 5));
@@ -216,17 +358,19 @@ public class MyEvent extends JFrame {
      * Charge les événements depuis la base de données et remplit le tableau.
      */
     private void loadEventData() {
-           events = eventController.listEvents();
-            for (Event event : events) {
-
-                Object[] rowData = {
-                    event.getIdEvent(),
-                    event.getNom(),
-                    event.getDateDebut().format(outputFormatter),
-                    event.getDateFin().format(outputFormatter)
-                };
-                tableModel.addRow(rowData);
-            }
+    	
+	   events = org_EventController.getEventCreatedByOrg(idLoggedUser);          
+	   
+	    for (Event event : events) {
+	
+	        Object[] rowData = {
+	            event.getIdEvent(),
+	            event.getNom(),
+	            event.getDateDebut().format(outputFormatter),
+	            event.getDateFin().format(outputFormatter)
+	        };
+	        tableModel.addRow(rowData);
+	    }
     }
     
 
@@ -239,7 +383,7 @@ public class MyEvent extends JFrame {
         for (Event event : events) {
             if (event.getIdEvent() == selectedEventId) {
                 lblNom.setText(event.getNom());
-                lblDescription.setText(event.getDescription());
+                tADescription.setText(event.getDescription());
                 lblCapacite.setText("Nombre de place disponible: " + event.getCapacite());
                 lblPrix.setText("Prix: " + event.getPrix() + " €");
                 lblDateDebut.setText(event.getDateDebut().format(outputFormatter));
@@ -250,7 +394,7 @@ public class MyEvent extends JFrame {
 
       // Si aucun événement trouvé, afficher un message par défaut
         lblNom.setText("Nom: N/A");
-        lblDescription.setText("Description: N/A");
+        tADescription.setText("Description: N/A");
         lblCapacite.setText("Capacité: N/A");
         lblPrix.setText("Prix: N/A");
         lblDateDebut.setText("Début: N/A");

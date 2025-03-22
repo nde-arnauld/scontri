@@ -3,6 +3,7 @@ package controllers;
 import java.util.List;
 
 import dao.Org_EventDAO;
+import models.Event;
 import models.Org_Event;
 import models.User;
 
@@ -25,6 +26,9 @@ public class Org_EventController {
         return orgEventDAO.getOrgsEvent(idEvent);
     }
     
+    public List<Event> getEventCreatedByOrg(int idUser) {
+        return orgEventDAO.getEventsCreatedByUser(idUser);
+    }
     
 
 
