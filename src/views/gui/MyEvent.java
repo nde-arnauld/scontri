@@ -12,22 +12,18 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
-import controllers.EventController;
 import controllers.Org_EventController;
 import controllers.Part_EventController;
-import controllers.UserController;
 import dao.Database;
 import dao.EventDAO;
 import dao.Org_EventDAO;
 import dao.Part_EventDAO;
-import dao.UserDAO;
 import models.Event;
 import models.User;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
-import java.awt.desktop.UserSessionListener;
 
 public class MyEvent extends JFrame {
     
@@ -151,28 +147,28 @@ public class MyEvent extends JFrame {
         lblCapacite = new JLabel("Capacité");
         lblCapacite.setFont(new Font("Tahoma", Font.BOLD, 11));
         lblCapacite.setHorizontalAlignment(SwingConstants.CENTER);
-        lblCapacite.setBounds(10, 160, 329, 14);
+        lblCapacite.setBounds(18, 130, 329, 14);
         panelDetails.add(lblCapacite);
         
         lblPrix = new JLabel("Prix");
         lblPrix.setHorizontalAlignment(SwingConstants.CENTER);
         lblPrix.setFont(new Font("Tahoma", Font.BOLD, 11));
-        lblPrix.setBounds(10, 193, 329, 14);
+        lblPrix.setBounds(18, 163, 329, 14);
         panelDetails.add(lblPrix);
         
         lblDateDebut = new JLabel("Date de début");
         lblDateDebut.setHorizontalAlignment(SwingConstants.CENTER);
-        lblDateDebut.setBounds(41, 232, 123, 14);
+        lblDateDebut.setBounds(49, 202, 123, 14);
         panelDetails.add(lblDateDebut);
         
         lblDateFin = new JLabel("Date de fin");
         lblDateFin.setHorizontalAlignment(SwingConstants.CENTER);
-        lblDateFin.setBounds(205, 232, 138, 14);
+        lblDateFin.setBounds(213, 202, 138, 14);
         panelDetails.add(lblDateFin);
         
         JLabel lblNewLabel = new JLabel("Du :");
         lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        lblNewLabel.setBounds(2, 232, 37, 14);
+        lblNewLabel.setBounds(10, 202, 37, 14);
         panelDetails.add(lblNewLabel);
         
         JButton btnListPart = new JButton("Liste des participants");
@@ -212,7 +208,7 @@ public class MyEvent extends JFrame {
         panelDetails.add(btnListPart);
         
         tADescription = new JTextArea();
-        tADescription.setBounds(10, 57, 329, 92);
+        tADescription.setBounds(10, 57, 329, 64);
         tADescription.setLineWrap(true);  // Active le retour à la ligne automatique
         tADescription.setWrapStyleWord(true); // Coupe proprement aux mots
         tADescription.setEditable(false); // Rend le texte non éditable
@@ -225,13 +221,13 @@ public class MyEvent extends JFrame {
         
         JLabel lblAu = new JLabel("au");
         lblAu.setHorizontalAlignment(SwingConstants.CENTER);
-        lblAu.setBounds(166, 232, 37, 14);
+        lblAu.setBounds(174, 202, 37, 14);
         panelDetails.add(lblAu);
         
         JLabel lblNewLabel_1 = new JLabel("");
         lblNewLabel_1.setIcon(new ImageIcon("D:\\UNIVERSITE_DE_CORSE\\SECOND SEMESTER\\PROJET-IHM\\SONCTRI\\scontri\\media\\laCarte.png"));
         lblNewLabel_1.setHorizontalAlignment(SwingConstants.CENTER);
-        lblNewLabel_1.setBounds(10, 271, 329, 156);
+        lblNewLabel_1.setBounds(10, 264, 329, 163);
         panelDetails.add(lblNewLabel_1);
 
        
@@ -241,19 +237,27 @@ public class MyEvent extends JFrame {
 		panel_2.setLayout(null);
 		
 		JButton btnCreateEvent = new JButton("Créer un évenement");
-		btnCreateEvent.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				 // Créer la boîte de dialogue modale
+        btnCreateEvent.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                 // Créer la boîte de dialogue modale
                 JDialog dialog = new JDialog(MyEvent.this, "Créer un évenement", true);
                 dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
                 dialog.setSize(400, 650);
                 dialog.setLocationRelativeTo(MyEvent.this);
                 
-                CreateUpdateEvent createUpdateEvent  = new CreateUpdateEvent(connection);
+                CreateUpdateEvent createUpdateEvent  = new CreateUpdateEvent(connection,idLoggedUser);
                 dialog.setContentPane(createUpdateEvent.getContentPane());
+                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+                    @Override
+                    public void windowClosed(java.awt.event.WindowEvent windowEvent) {
+                        // Recharger les données de la table après la fermeture du dialogue
+                        tableModel.setRowCount(0);
+                        loadEventData();
+                    }
+                });
                 dialog.setVisible(true);
-			}
-		});
+            }
+        });
 		btnCreateEvent.setBorderPainted(false);
 		btnCreateEvent.setForeground(Color.WHITE);
 		btnCreateEvent.setBackground(new Color(0, 0, 128));
@@ -261,39 +265,47 @@ public class MyEvent extends JFrame {
 		panel_2.add(btnCreateEvent);
 		
 		JButton btnUpdateEvent = new JButton("Modifier");
-		btnUpdateEvent.addActionListener(new ActionListener() {
-		    public void actionPerformed(ActionEvent e) {
-		        // Vérifier si une ligne est sélectionnée
-		        int selectedRow = table.getSelectedRow();
-		        if (selectedRow == -1) {
-		            JOptionPane.showMessageDialog(null, "Veuillez sélectionner un événement.");
-		            return;
-		        }
+        btnUpdateEvent.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                // Vérifier si une ligne est sélectionnée
+                int selectedRow = table.getSelectedRow();
+                if (selectedRow == -1) {
+                    JOptionPane.showMessageDialog(null, "Veuillez sélectionner un événement.");
+                    return;
+                }
 
-		        // Récupérer l'ID de l'événement sélectionné
-		        int selectedEventId = (int) table.getValueAt(selectedRow, 0); // Supposons que l'ID est en première colonne
+                // Récupérer l'ID de l'événement sélectionné
+                int selectedEventId = (int) table.getValueAt(selectedRow, 0); // Supposons que l'ID est en première colonne
 
-		        // Récupérer l'événement depuis la base de données
-		        EventDAO eventDAO = new EventDAO(connection);
-		        Event selectedEvent = eventDAO.getEventById(selectedEventId);
+                // Récupérer l'événement depuis la base de données
+                EventDAO eventDAO = new EventDAO(connection);
+                Event selectedEvent = eventDAO.getEventById(selectedEventId);
 
-		        if (selectedEvent == null) {
-		            JOptionPane.showMessageDialog(null, "Erreur : Impossible de trouver l'événement sélectionné.");
-		            return;
-		        }
+                if (selectedEvent == null) {
+                    JOptionPane.showMessageDialog(null, "Erreur : Impossible de trouver l'événement sélectionné.");
+                    return;
+                }
 
-		        // Créer la boîte de dialogue modale
-		        JDialog dialog = new JDialog(MyEvent.this, "Modifier un événement", true);
-		        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		        dialog.setSize(400, 650);
-		        dialog.setLocationRelativeTo(MyEvent.this);
+                // Créer la boîte de dialogue modale
+                JDialog dialog = new JDialog(MyEvent.this, "Modifier un événement", true);
+                dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+                dialog.setSize(400, 650);
+                dialog.setLocationRelativeTo(MyEvent.this);
 
-		        // Passer l'événement sélectionné à la fenêtre de modification
-		        CreateUpdateEvent createUpdateEvent = new CreateUpdateEvent(selectedEvent, connection);
-		        dialog.setContentPane(createUpdateEvent.getContentPane());
-		        dialog.setVisible(true);
-		    }
-		});
+                // Passer l'événement sélectionné à la fenêtre de modification
+                CreateUpdateEvent createUpdateEvent = new CreateUpdateEvent(selectedEvent, connection,idLoggedUser);
+                dialog.setContentPane(createUpdateEvent.getContentPane());
+                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+                    @Override
+                    public void windowClosed(java.awt.event.WindowEvent windowEvent) {
+                        // Recharger les données de la table après la fermeture du dialogue
+                        tableModel.setRowCount(0);
+                        loadEventData();
+                    }
+                });
+                dialog.setVisible(true);
+            }
+        });
 
 		btnUpdateEvent.setForeground(Color.WHITE);
 		btnUpdateEvent.setBorderPainted(false);

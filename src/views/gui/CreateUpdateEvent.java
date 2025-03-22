@@ -1,18 +1,20 @@
 package views.gui;
 
+import controllers.CategorieController;
+import controllers.EventController;
+import controllers.LieuController;
+import controllers.Org_EventController;
+import dao.CategorieDAO;
+import dao.EventDAO;
+import dao.LieuDAO;
+import dao.Org_EventDAO;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.util.List;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-
-import controllers.CategorieController;
-import controllers.LieuController;
-import dao.CategorieDAO;
-import dao.LieuDAO;
 import models.Categorie;
 import models.Event;
 import models.Lieu;
@@ -32,24 +34,34 @@ public class CreateUpdateEvent extends JDialog {
     private CategorieDAO categorieDAO;
     private LieuController lieuController;
     private CategorieController categorieController;
-
+    private EventDAO eventDAO;
+    private EventController eventController;
+    private Org_EventDAO org_EventDAO;
+    private Org_EventController org_EventController;
+    private int idLoggedUser;
     /**
      * Constructeur pour la modification
      */
-    public CreateUpdateEvent(Event event, Connection connection) {
+    public CreateUpdateEvent(Event event, Connection connection, int idUser) {
         this.theEvent = event;
+        this.idLoggedUser = idUser;
         this.lieuDAO = new LieuDAO(connection) ;
         this.categorieDAO = new CategorieDAO(connection);
         this.lieuController = new LieuController(lieuDAO);
         this.categorieController = new CategorieController(categorieDAO);
+        this.eventDAO = new EventDAO(connection);
+        this.eventController = new EventController(eventDAO);
+        this.org_EventDAO = new Org_EventDAO(connection);
+        this.org_EventController = new Org_EventController(org_EventDAO);
         initialize();
     }
 
     /**
      * Constructeur pour la création
+     * @wbp.parser.constructor
      */
-    public CreateUpdateEvent(Connection connection) {
-        this(null,connection);
+    public CreateUpdateEvent(Connection connection,int idUser) {
+        this(null,connection,idUser);
     }
 
     /**
@@ -144,12 +156,55 @@ public class CreateUpdateEvent extends JDialog {
         btnValider.setBounds(10, 570, 178, 33);
         btnValider.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // Code pour valider les informations
+            try {
+                String nom = txtNom.getText();
+                String description = txtDescription.getText();
+                int capacite = Integer.parseInt(txtCapacite.getText());
+                double prix = Double.parseDouble(txtPrix.getText());
+                java.util.Date dateDebutUtil = (java.util.Date) dateDebutSpinner.getValue();
+                java.time.LocalDateTime dateDebut = dateDebutUtil.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime();
+                java.util.Date dateFinUtil = (java.util.Date) dateFinSpinner.getValue();
+                java.time.LocalDateTime dateFin = dateFinUtil.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime();
+                int lieu = Integer.parseInt(((String) comboLieu.getSelectedItem()).split("-")[0]);
+                int categorie = Integer.parseInt(((String) comboCategorie.getSelectedItem()).split("-")[0]);
+
+                if (theEvent == null) {
+                // Création d'un nouvel événement               
+                int eventId = eventController.createEvent(nom, description, capacite, prix, dateDebut, dateFin, "actif", lieu, categorie);
+                boolean isCreated = org_EventController.createOrgEvent( idLoggedUser, eventId);
+                if (isCreated) {
+                    JOptionPane.showMessageDialog(null, "Événement créer avec succès.");
+                } else {
+                    JOptionPane.showMessageDialog(null, "Échec de la création de l'événement.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                }
+                
+                } else {
+                // Modification de l'événement existant
+                boolean isUpdated = eventController.updateEvent(theEvent.getIdEvent(), nom, description, capacite, prix, dateDebut, dateFin, "actif", lieu, categorie);
+                if (isUpdated) {
+                    JOptionPane.showMessageDialog(null, "Événement mis à jour avec succès.");
+                } else {
+                    JOptionPane.showMessageDialog(null, "Échec de la mise à jour de l'événement.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                }
+
+                }
+                dispose();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(CreateUpdateEvent.this, "Erreur: " + ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+            }
             }
         });
         contentPane.add(btnValider);
 
         btnAnnuler = new JButton("Annuler");
+        btnAnnuler.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		txtNom.setText("");
+                txtDescription.setText("");
+                txtCapacite.setText("");
+                txtPrix.setText("");
+        	}
+        });
         btnAnnuler.setBorderPainted(false);
         btnAnnuler.setForeground(Color.black);
         btnAnnuler.setBackground(new Color(255, 255, 255));
@@ -162,8 +217,8 @@ public class CreateUpdateEvent extends JDialog {
             txtDescription.setText(theEvent.getDescription());
             txtCapacite.setText(String.valueOf(theEvent.getCapacite()));
             txtPrix.setText(String.valueOf(theEvent.getPrix()));
-            dateDebutSpinner.setValue(theEvent.getDateDebut());
-            dateFinSpinner.setValue(theEvent.getDateFin());
+            dateDebutSpinner.setValue(java.sql.Timestamp.valueOf(theEvent.getDateDebut()));
+            dateFinSpinner.setValue(java.sql.Timestamp.valueOf(theEvent.getDateFin()));
             comboLieu.setSelectedItem(theEvent.getIdLieu());
             comboCategorie.setSelectedItem(theEvent.getIdCat());
         }
@@ -174,7 +229,7 @@ public class CreateUpdateEvent extends JDialog {
     	listOfLieux = lieuController.listLieux();
     	
         for (Lieu lieu : listOfLieux) {
-            comboLieu.addItem(lieu.getNom());
+            comboLieu.addItem(lieu.getIdLieu() + "-"+ lieu.getNom());
         }
     }
 
@@ -183,7 +238,7 @@ public class CreateUpdateEvent extends JDialog {
     	listOfCategories = categorieController.listCategories();
     	
         for (Categorie categorie : listOfCategories) {
-            comboCategorie.addItem(categorie.getNom());
+            comboCategorie.addItem(categorie.getIdCat() + "-"+categorie.getNom());
         }
     }
 
