@@ -60,7 +60,7 @@ public class ManagePartEvent extends JFrame {
 		panel.setBounds(10, 10, 570, 400);
 		panel.setLayout(new BorderLayout());
 		
-		String[] columnNames = {"Sélectionner", "Nom", "Prénom", "Date de la demande", "Statut"};
+		String[] columnNames = {" ", "Nom", "Prénom", "Date de la demande", "Statut"};
 		tableModel = new DefaultTableModel(columnNames, 0) {
 			private static final long serialVersionUID = 1L;
 

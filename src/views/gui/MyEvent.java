@@ -44,22 +44,6 @@ public class MyEvent extends JFrame {
     private int idLoggedUser;
 
     /**
-     * Launch the application.
-     */
-    // public static void main(String[] args) {
-    // EventQueue.invokeLater(new Runnable() {
-    // public void run() {
-    // try {
-    // MyEvent frame = new MyEvent();
-    // frame.setVisible(true);
-    // } catch (Exception e) {
-    // e.printStackTrace();
-    // }
-    // }
-    // });
-    // }
-
-    /**
      * Create the frame.
      */
     public MyEvent(int idLoggedUser) {

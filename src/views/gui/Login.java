@@ -110,7 +110,7 @@ public class Login extends JFrame { // Changement de JDialog à JFrame
 				if (result) {
 					JOptionPane.showMessageDialog(null, "Vous êtes connecté avec succès !",
 							"Connexion réussie", JOptionPane.INFORMATION_MESSAGE);
-					Home home = new Home(userController.getLoggedUser().getIdUser());
+					Home home = new Home(userController.getLoggedUser());
 					home.setVisible(true);
 					dispose();
 				} else {
