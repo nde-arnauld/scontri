@@ -246,10 +246,10 @@ public class MyEvent extends JFrame {
 				 // Créer la boîte de dialogue modale
                 JDialog dialog = new JDialog(MyEvent.this, "Créer un évenement", true);
                 dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-                dialog.setSize(600, 500);
+                dialog.setSize(400, 650);
                 dialog.setLocationRelativeTo(MyEvent.this);
                 
-                CreateUpdateEvent createUpdateEvent  = new CreateUpdateEvent();
+                CreateUpdateEvent createUpdateEvent  = new CreateUpdateEvent(connection);
                 dialog.setContentPane(createUpdateEvent.getContentPane());
                 dialog.setVisible(true);
 			}
@@ -285,11 +285,11 @@ public class MyEvent extends JFrame {
 		        // Créer la boîte de dialogue modale
 		        JDialog dialog = new JDialog(MyEvent.this, "Modifier un événement", true);
 		        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		        dialog.setSize(600, 500);
+		        dialog.setSize(400, 650);
 		        dialog.setLocationRelativeTo(MyEvent.this);
 
 		        // Passer l'événement sélectionné à la fenêtre de modification
-		        CreateUpdateEvent createUpdateEvent = new CreateUpdateEvent(selectedEvent);
+		        CreateUpdateEvent createUpdateEvent = new CreateUpdateEvent(selectedEvent, connection);
 		        dialog.setContentPane(createUpdateEvent.getContentPane());
 		        dialog.setVisible(true);
 		    }

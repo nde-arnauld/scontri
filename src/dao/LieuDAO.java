@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
 import models.Lieu;
 
 public class LieuDAO {
@@ -162,5 +161,26 @@ public class LieuDAO {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public List<Lieu> getAllLieux() {
+        List<Lieu> lieux = new ArrayList<>();
+        String sql = "SELECT * FROM " + TB_NAME;
+        try (PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                Lieu lieu = new Lieu(
+                    rs.getInt(TB_ID_LIEU),
+                    rs.getString(TB_NOM),
+                    rs.getString(TB_ADRESSE),
+                    rs.getString(TB_VILLE),
+                    rs.getString(TB_CODE_POSTAL)
+                );
+                lieux.add(lieu);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lieux;
     }
 }

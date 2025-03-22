@@ -35,6 +35,9 @@ public class LieuController {
     public List<Lieu> getLieuxByName(String nom) {
         return lieuDAO.getLieuxByName(nom);
     }
-      
+     
+    public List<Lieu> listLieux(){
+    	return lieuDAO.getAllLieux();
+    }
 
 }
