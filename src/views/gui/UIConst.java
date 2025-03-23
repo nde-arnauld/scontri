@@ -9,7 +9,8 @@ public class UIConst {
 	public static final int WIDTH = 1024;
 	public static final int HEIGHT = 650;
 
-	public static final Font DEFAULT_FONT = new Font("Tahoma", Font.BOLD, 11);
+	public static final Font DEFAULT_FONT_PLAIN = new Font("Tahoma", Font.PLAIN, 11);
+	public static final Font DEFAULT_FONT_BOLD = new Font("Tahoma", Font.BOLD, 11);
 	public static final Font TITLE_FONT = new Font("Tahoma", Font.BOLD, 20);
 
 	public static final Color PRIMARY_COLOR = new Color(0, 0, 128);

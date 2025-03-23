@@ -170,15 +170,17 @@ public class MyEvent extends JFrame {
                 // Récupérer la liste des participants
                 part_EventDAO = new Part_EventDAO(connection);
                 part_EventController = new Part_EventController(null, part_EventDAO);
-                List<Map<String, Object>> participantsInfo = part_EventController.getParticipantsInfoForEvent(selectedEventId);
-                
-             // Créer la boîte de dialogue modale
+                List<Map<String, Object>> participantsInfo = part_EventController
+                        .getParticipantsInfoForEvent(selectedEventId);
+
+                // Créer la boîte de dialogue modale
                 JDialog dialog = new JDialog(MyEvent.this, "Gestion des participants", true);
                 dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
                 dialog.setSize(600, 500);
                 dialog.setLocationRelativeTo(MyEvent.this);
-                                
-                ManagePartEvent managePartEvent = new ManagePartEvent(participantsInfo,selectedEventId  ,connection);
+
+                ManagePartEvent managePartEvent = new ManagePartEvent(participantsInfo, connection, idLoggedUser,
+                        selectedEventId);
                 dialog.setContentPane(managePartEvent.getContentPane());
                 dialog.setVisible(true);
             }
@@ -318,54 +320,55 @@ public class MyEvent extends JFrame {
                     EventDAO eventDAO = new EventDAO(connection);
                     boolean deleted = eventDAO.deleteEvent(eventId);
 
-		            if (deleted) {
-		                JOptionPane.showMessageDialog(null, "Événement supprimé avec succès.", "Succès", JOptionPane.INFORMATION_MESSAGE);
-		                loadEventData(); // Rafraîchir la liste après suppression
-		            } else {
-		                JOptionPane.showMessageDialog(null, "Erreur lors de la suppression.", "Erreur", JOptionPane.ERROR_MESSAGE);
-		            }
-		        }
-		    }
-		});
+                    if (deleted) {
+                        JOptionPane.showMessageDialog(null, "Événement supprimé avec succès.", "Succès",
+                                JOptionPane.INFORMATION_MESSAGE);
+                        loadEventData(); // Rafraîchir la liste après suppression
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Erreur lors de la suppression.", "Erreur",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        });
 
-		
-		btnDeleteEvent.setForeground(Color.WHITE);
-		btnDeleteEvent.setBorderPainted(false);
-		btnDeleteEvent.setBackground(new Color(232, 0, 5));
-		btnDeleteEvent.setBounds(523, 11, 170, 28);
-		panel_2.add(btnDeleteEvent);
-		
-		JButton btnClose = new JButton("Fermer");
-		btnClose.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				dispose();
-			}
-		});
-		btnClose.setForeground(Color.black);
-		btnClose.setBackground(new Color(255, 255, 255));
-		btnClose.setBounds(754, 11, 170, 28);
-		panel_2.add(btnClose);
-        
+        btnDeleteEvent.setForeground(Color.WHITE);
+        btnDeleteEvent.setBorderPainted(false);
+        btnDeleteEvent.setBackground(new Color(232, 0, 5));
+        btnDeleteEvent.setBounds(523, 11, 170, 28);
+        panel_2.add(btnDeleteEvent);
+
+        JButton btnClose = new JButton("Fermer");
+        btnClose.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        });
+        btnClose.setForeground(Color.black);
+        btnClose.setBackground(new Color(255, 255, 255));
+        btnClose.setBounds(754, 11, 170, 28);
+        panel_2.add(btnClose);
+
     }
 
     /**
      * Charge les événements depuis la base de données et remplit le tableau.
      */
     private void loadEventData() {
-        tableModel.setRowCount(0); //effacer les donnee d'abord
+        tableModel.setRowCount(0); // effacer les donnee d'abord
 
-	   events = org_EventController.getEventCreatedByOrg(idLoggedUser);          
-	   
-	    for (Event event : events) {
-	
-	        Object[] rowData = {
-	            event.getIdEvent(),
-	            event.getNom(),
-	            event.getDateDebut().format(outputFormatter),
-	            event.getDateFin().format(outputFormatter)
-	        };
-	        tableModel.addRow(rowData);
-	    }
+        events = org_EventController.getEventCreatedByOrg(idLoggedUser);
+
+        for (Event event : events) {
+
+            Object[] rowData = {
+                    event.getIdEvent(),
+                    event.getNom(),
+                    event.getDateDebut().format(outputFormatter),
+                    event.getDateFin().format(outputFormatter)
+            };
+            tableModel.addRow(rowData);
+        }
     }
 
     /**

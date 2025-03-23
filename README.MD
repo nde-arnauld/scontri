@@ -24,9 +24,8 @@ L'architecture de l'application est organisée en plusieurs couches :
 ## Bibliothèques externes
 
 Le projet utilise les bibliothèques suivantes :
-
-- **JDBC** : Pour la gestion des connexions à la base de données.
-- **Bcrypt** : Pour le hachage des mots de passe afin d'assurer la sécurité des données utilisateur.
+- **JDBC** : Pour la gestion des connexions à la base de données. [Télécharger JDBC](https://dev.mysql.com/downloads/connector/j/) version 9.2.0
+- **Bcrypt** : Pour le hachage des mots de passe afin d'assurer la sécurité des données utilisateur. [Télécharger Bcrypt](https://jar-download.com/artifact-search/bcrypt) version 0.4.1
 
 ## Exécution de l'application
 

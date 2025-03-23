@@ -14,39 +14,47 @@ import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
+import controllers.Org_EventController;
 import controllers.Part_EventController;
+import dao.Org_EventDAO;
 import dao.Part_EventDAO;
+import models.User;
 import utils.enums.PartEventStatus;
 
 import java.sql.Connection;
 import java.time.format.DateTimeFormatter;
 import java.awt.Color;
 
-
 public class ManagePartEvent extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
-	private List<Map<String, Object>> participantsList; 
+	private List<Map<String, Object>> participantsList;
 	private JTable table;
 	private DefaultTableModel tableModel;
 	private Part_EventDAO part_EventDAO;
 	private Part_EventController part_EventController;
 	DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
+	private Org_EventController org_EventController;
+
 	private int idEvent;
+	private int idLoggedUser;
 
 	/**
 	 * Create the frame.
 	 */
-	public ManagePartEvent(List<Map<String, Object>> usersList, int idEvent ,Connection connection) {
+	public ManagePartEvent(List<Map<String, Object>> usersList, Connection connection, int idLoggedUser, int idEvent) {
 		this.participantsList = usersList;
 		this.idEvent = idEvent;
 		this.part_EventDAO = new Part_EventDAO(connection);
 		this.part_EventController = new Part_EventController(null, part_EventDAO);
+		this.org_EventController = new Org_EventController(new Org_EventDAO(connection));
+
+		this.idLoggedUser = idLoggedUser;
 		initialize();
 	}
-	
+
 	public void initialize() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 600, 500);
@@ -55,12 +63,12 @@ public class ManagePartEvent extends JFrame {
 
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		
+
 		JPanel panel = new JPanel();
 		panel.setBounds(10, 10, 570, 400);
 		panel.setLayout(new BorderLayout());
-		
-		String[] columnNames = {" ", "Nom", "Prénom", "Date de la demande", "Statut"};
+
+		String[] columnNames = { " ", "Nom", "Prénom", "Date de la demande", "Statut" };
 		tableModel = new DefaultTableModel(columnNames, 0) {
 			private static final long serialVersionUID = 1L;
 
@@ -91,50 +99,61 @@ public class ManagePartEvent extends JFrame {
 		buttonPanel.setBounds(10, 420, 570, 40);
 		contentPane.add(buttonPanel);
 
-		JButton btnValidate = new JButton("Valider");
-		btnValidate.setForeground(new Color(255, 255, 255));
-		btnValidate.setBorderPainted(false);
-		btnValidate.setBackground(new Color(0, 0, 160));
-		btnValidate.setBounds(74, 11, 173, 23);
-		btnValidate.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				handleValidation(true);
-			}
-		});
-		buttonPanel.setLayout(null);
-		buttonPanel.add(btnValidate);
+		boolean isOrg = false;
 
-		JButton btnReject = new JButton("Rejeter");
-		btnReject.setBackground(new Color(255, 255, 255));
-		btnReject.setBorderPainted(false);
-		btnReject.setBounds(321, 11, 173, 23);
-		btnReject.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				handleValidation(false);
-			}
-		});
-		buttonPanel.add(btnReject);
+		List<User> orgs = org_EventController.listOrgsEvent(idEvent);
+		for (User org : orgs) {
+			if (idLoggedUser == org.getIdUser())
+				isOrg = true;
+		}
+		System.out.println("Id event : " + idEvent + ", Id user : " + idLoggedUser + ", Is org : " + isOrg);
+		if (isOrg) {
+			JButton btnValidate = new JButton("Valider");
+			btnValidate.setForeground(new Color(255, 255, 255));
+			btnValidate.setBorderPainted(false);
+			btnValidate.setBackground(new Color(0, 0, 160));
+			btnValidate.setBounds(74, 11, 173, 23);
+			btnValidate.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					handleValidation(true);
+				}
+			});
+			buttonPanel.setLayout(null);
+			buttonPanel.add(btnValidate);
+
+			JButton btnReject = new JButton("Rejeter");
+			btnReject.setBackground(new Color(255, 255, 255));
+			btnReject.setBorderPainted(false);
+			btnReject.setBounds(321, 11, 173, 23);
+			btnReject.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					handleValidation(false);
+				}
+			});
+			buttonPanel.add(btnReject);
+		}
 	}
-	
+
 	/**
 	 * Charger les données des participants dans le tableau
 	 */
 	private void loadParticipantsData() {
 		tableModel.setRowCount(0); // Clear existing data
+
 		for (Map<String, Object> participant : participantsList) {
 			Object datePart = participant.get("date_part");
 			String formattedDate = datePart != null ? outputFormatter.format((java.time.LocalDateTime) datePart) : "";
 			Object[] rowData = {
-				false, // Case à cocher initialisée à false
-				participant.get("nom"),
-				participant.get("prenom"),
-				formattedDate,
-				participant.get("status")
+					false, // Case à cocher initialisée à false
+					participant.get("nom"),
+					participant.get("prenom"),
+					formattedDate,
+					participant.get("status")
 			};
 			tableModel.addRow(rowData);
 		}
 	}
-		
+
 	private void handleValidation(boolean isValid) {
 		int rowCount = tableModel.getRowCount();
 		boolean hasSelection = false;
@@ -151,10 +170,12 @@ public class ManagePartEvent extends JFrame {
 			}
 		}
 		if (hasSelection) {
-			javax.swing.JOptionPane.showMessageDialog(this, "Opération réussie.", "Succès", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+			javax.swing.JOptionPane.showMessageDialog(this, "Opération réussie.", "Succès",
+					javax.swing.JOptionPane.INFORMATION_MESSAGE);
 			loadParticipantsData(); // Recharger les données du tableau
 		} else {
-			javax.swing.JOptionPane.showMessageDialog(this, "Veuillez sélectionner au moins un participant.", "Erreur", javax.swing.JOptionPane.ERROR_MESSAGE);
+			javax.swing.JOptionPane.showMessageDialog(this, "Veuillez sélectionner au moins un participant.", "Erreur",
+					javax.swing.JOptionPane.ERROR_MESSAGE);
 		}
 	}
 }
