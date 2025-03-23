@@ -66,5 +66,9 @@ public class Part_EventController {
         return partEventDAO.getParticipantsWithStatusFromEvent(idEvent);
     }
     
+    public List<Map<String, Object>> getEventsInfoForUser(int idUser) {
+        return partEventDAO.getEventsWithStatusForUser(idUser);
+    }
+
     
 }

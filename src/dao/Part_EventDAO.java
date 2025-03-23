@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import models.Event;
 import models.Part_Event;
 import models.User;
@@ -206,9 +205,44 @@ public class Part_EventDAO {
             e.printStackTrace();
         }
         return events;
-    }
+        }
 
-    public boolean userParticipatesInEvent(int idUser, int idEvent) {
+        public List<Map<String, Object>> getEventsWithStatusForUser(int idUser) {
+        List<Map<String, Object>> eventsWithStatus = new ArrayList<>();
+        String sql = "SELECT e.*, p." + TB_STATUS + " as part_status , p." + TB_PRESENCE + ", p." + TB_DATE_PART + " FROM " + TB_NAME + " p " +
+            "JOIN " + EventDAO.TB_NAME + " e ON p.id_event = e.id_event " +
+            "WHERE p.id_user = ?  AND (  p."+ TB_STATUS +" = ? OR  p."+ TB_STATUS +" = ? )";
+        try {
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, idUser);
+            stmt.setString(2, PartEventStatus.VALIDEE.toString());
+            stmt.setString(3, PartEventStatus.EN_ATTENTE.toString());
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+            Map<String, Object> eventData = new HashMap<>();
+            eventData.put("id_event", rs.getInt(TB_ID_EVENT));
+            eventData.put("nom", rs.getString(EventDAO.TB_NOM));
+            eventData.put("description", rs.getString(EventDAO.TB_DESCRIPTION));
+            eventData.put("capacite", rs.getInt(EventDAO.TB_CAPACITE));
+            eventData.put("prix", rs.getDouble(EventDAO.TB_PRIX));
+            eventData.put("date_debut", rs.getTimestamp(EventDAO.TB_DATE_DEBUT).toLocalDateTime());
+            eventData.put("date_fin", rs.getTimestamp(EventDAO.TB_DATE_FIN).toLocalDateTime());
+            eventData.put("date_creation", rs.getTimestamp(EventDAO.TB_DATE_CREATION).toLocalDateTime());
+            eventData.put("status", rs.getString(EventDAO.TB_STATUS));
+            eventData.put("id_lieu", rs.getInt(EventDAO.TB_ID_LIEU));
+            eventData.put("id_cat", rs.getInt(EventDAO.TB_ID_CAT));
+            eventData.put("part_status", rs.getString("part_status"));
+            eventData.put("presence", rs.getString(TB_PRESENCE));
+            eventData.put("date_part", rs.getObject(TB_DATE_PART, LocalDateTime.class));
+            eventsWithStatus.add(eventData);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return eventsWithStatus;
+        }
+
+        public boolean userParticipatesInEvent(int idUser, int idEvent) {
         String sql = "SELECT COUNT(*) FROM " + TB_NAME + " WHERE " + TB_ID_USER + " = ? AND " + TB_ID_EVENT + " = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, idUser);
