@@ -66,7 +66,7 @@ public class Part_EventDAO {
             return false;
         }
     }
-    
+
     public boolean updatePartEventStatus(int idUser, int idEvent, String status) {
         String sql = "UPDATE " + TB_NAME + " SET " + TB_STATUS + " = ? WHERE " + TB_ID_USER + " = ? AND " + TB_ID_EVENT
                 + " = ?";
@@ -82,14 +82,6 @@ public class Part_EventDAO {
             return false;
         }
     }
-    
-    
- 
-    
-    
-    
-    
-    
 
     public Part_Event getPartEvent(int idUser, int idEvent) {
         String sql = "SELECT * FROM " + TB_NAME + " WHERE " + TB_ID_USER + " = ? AND " + TB_ID_EVENT + " = ?";
@@ -110,6 +102,28 @@ public class Part_EventDAO {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public List<Part_Event> getPartsEvent(int idEvent) {
+        List<Part_Event> partsEvents = new ArrayList<>();
+        String sql = "SELECT * FROM " + TB_NAME + " WHERE " + TB_ID_EVENT + " = ?";
+        try {
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, idEvent);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Part_Event partEvent = new Part_Event(
+                        rs.getInt(TB_ID_USER),
+                        rs.getInt(TB_ID_EVENT),
+                        PartEventStatus.valueOf(rs.getString(TB_STATUS).toUpperCase()),
+                        rs.getString(TB_PRESENCE),
+                        rs.getObject(TB_DATE_PART, LocalDateTime.class));
+                partsEvents.add(partEvent);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return partsEvents;
     }
 
     public List<User> getParticipantsFromEvent(int idEvent) {
@@ -140,13 +154,14 @@ public class Part_EventDAO {
         }
         return participants;
     }
-    
+
     // récupère les participants et le status de leurs demandes
     public List<Map<String, Object>> getParticipantsWithStatusFromEvent(int idEvent) {
         List<Map<String, Object>> participants = new ArrayList<>();
-        String sql = "SELECT u.*, p." + TB_STATUS + ", p." + TB_PRESENCE + ", p." + TB_DATE_PART + " FROM " + TB_NAME + " p " +
+        String sql = "SELECT u.*, p." + TB_STATUS + ", p." + TB_PRESENCE + ", p." + TB_DATE_PART + " FROM " + TB_NAME
+                + " p " +
                 "JOIN Utilisateur u ON p.id_user = u.id_user " +
-                "WHERE p.id_event = ? AND ( "+ TB_STATUS +" = ? OR "+ TB_STATUS +" = ? )";
+                "WHERE p.id_event = ? AND ( " + TB_STATUS + " = ? OR " + TB_STATUS + " = ? )";
         try {
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setInt(1, idEvent);
@@ -205,13 +220,14 @@ public class Part_EventDAO {
             e.printStackTrace();
         }
         return events;
-        }
+    }
 
-        public List<Map<String, Object>> getEventsWithStatusForUser(int idUser) {
+    public List<Map<String, Object>> getEventsWithStatusForUser(int idUser) {
         List<Map<String, Object>> eventsWithStatus = new ArrayList<>();
-        String sql = "SELECT e.*, p." + TB_STATUS + " as part_status , p." + TB_PRESENCE + ", p." + TB_DATE_PART + " FROM " + TB_NAME + " p " +
-            "JOIN " + EventDAO.TB_NAME + " e ON p.id_event = e.id_event " +
-            "WHERE p.id_user = ?  AND (  p."+ TB_STATUS +" = ? OR  p."+ TB_STATUS +" = ? )";
+        String sql = "SELECT e.*, p." + TB_STATUS + " as part_status , p." + TB_PRESENCE + ", p." + TB_DATE_PART
+                + " FROM " + TB_NAME + " p " +
+                "JOIN " + EventDAO.TB_NAME + " e ON p.id_event = e.id_event " +
+                "WHERE p.id_user = ?  AND (  p." + TB_STATUS + " = ? OR  p." + TB_STATUS + " = ? )";
         try {
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setInt(1, idUser);
@@ -219,30 +235,30 @@ public class Part_EventDAO {
             stmt.setString(3, PartEventStatus.EN_ATTENTE.toString());
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-            Map<String, Object> eventData = new HashMap<>();
-            eventData.put("id_event", rs.getInt(TB_ID_EVENT));
-            eventData.put("nom", rs.getString(EventDAO.TB_NOM));
-            eventData.put("description", rs.getString(EventDAO.TB_DESCRIPTION));
-            eventData.put("capacite", rs.getInt(EventDAO.TB_CAPACITE));
-            eventData.put("prix", rs.getDouble(EventDAO.TB_PRIX));
-            eventData.put("date_debut", rs.getTimestamp(EventDAO.TB_DATE_DEBUT).toLocalDateTime());
-            eventData.put("date_fin", rs.getTimestamp(EventDAO.TB_DATE_FIN).toLocalDateTime());
-            eventData.put("date_creation", rs.getTimestamp(EventDAO.TB_DATE_CREATION).toLocalDateTime());
-            eventData.put("status", rs.getString(EventDAO.TB_STATUS));
-            eventData.put("id_lieu", rs.getInt(EventDAO.TB_ID_LIEU));
-            eventData.put("id_cat", rs.getInt(EventDAO.TB_ID_CAT));
-            eventData.put("part_status", rs.getString("part_status"));
-            eventData.put("presence", rs.getString(TB_PRESENCE));
-            eventData.put("date_part", rs.getObject(TB_DATE_PART, LocalDateTime.class));
-            eventsWithStatus.add(eventData);
+                Map<String, Object> eventData = new HashMap<>();
+                eventData.put("id_event", rs.getInt(TB_ID_EVENT));
+                eventData.put("nom", rs.getString(EventDAO.TB_NOM));
+                eventData.put("description", rs.getString(EventDAO.TB_DESCRIPTION));
+                eventData.put("capacite", rs.getInt(EventDAO.TB_CAPACITE));
+                eventData.put("prix", rs.getDouble(EventDAO.TB_PRIX));
+                eventData.put("date_debut", rs.getTimestamp(EventDAO.TB_DATE_DEBUT).toLocalDateTime());
+                eventData.put("date_fin", rs.getTimestamp(EventDAO.TB_DATE_FIN).toLocalDateTime());
+                eventData.put("date_creation", rs.getTimestamp(EventDAO.TB_DATE_CREATION).toLocalDateTime());
+                eventData.put("status", rs.getString(EventDAO.TB_STATUS));
+                eventData.put("id_lieu", rs.getInt(EventDAO.TB_ID_LIEU));
+                eventData.put("id_cat", rs.getInt(EventDAO.TB_ID_CAT));
+                eventData.put("part_status", rs.getString("part_status"));
+                eventData.put("presence", rs.getString(TB_PRESENCE));
+                eventData.put("date_part", rs.getObject(TB_DATE_PART, LocalDateTime.class));
+                eventsWithStatus.add(eventData);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return eventsWithStatus;
-        }
+    }
 
-        public boolean userParticipatesInEvent(int idUser, int idEvent) {
+    public boolean userParticipatesInEvent(int idUser, int idEvent) {
         String sql = "SELECT COUNT(*) FROM " + TB_NAME + " WHERE " + TB_ID_USER + " = ? AND " + TB_ID_EVENT + " = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, idUser);

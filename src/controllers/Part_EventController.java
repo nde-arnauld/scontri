@@ -44,15 +44,15 @@ public class Part_EventController {
 
         return partEventDAO.removePartEvent(idUser, idEvent);
     }
-    
-    public boolean updateParticipation(int idUser, int idEvent , String status) { //modification par l'organisateur de l'event
+
+    public boolean updateParticipation(int idUser, int idEvent, String status) { // modification par l'organisateur de
+                                                                                 // l'event
         if (!partEventDAO.userParticipatesInEvent(idUser, idEvent)) {
             return false;
         }
 
-        return partEventDAO.updatePartEventStatus(idUser, idEvent,status);
+        return partEventDAO.updatePartEventStatus(idUser, idEvent, status);
     }
-    
 
     public List<Event> getEventsForUser(int idUser) {
         return partEventDAO.getEventsForUser(idUser);
@@ -61,14 +61,17 @@ public class Part_EventController {
     public List<User> getUsersForEvent(int idEvent) {
         return partEventDAO.getParticipantsFromEvent(idEvent);
     }
-    
+
     public List<Map<String, Object>> getParticipantsInfoForEvent(int idEvent) {
         return partEventDAO.getParticipantsWithStatusFromEvent(idEvent);
     }
-    
+
     public List<Map<String, Object>> getEventsInfoForUser(int idUser) {
         return partEventDAO.getEventsWithStatusForUser(idUser);
     }
 
-    
+    // Retourne les participations à un évènement
+    public List<Part_Event> getPartsEvent(int idEvent) {
+        return partEventDAO.getPartsEvent(idEvent);
+    }
 }

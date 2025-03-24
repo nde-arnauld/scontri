@@ -1,11 +1,14 @@
 package views.gui;
 
-
 import controllers.Part_EventController;
 import dao.Database;
 import dao.Part_EventDAO;
+import models.Part_Event;
+import utils.enums.PartEventStatus;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -71,7 +74,7 @@ public class MyRequest extends JFrame {
         panel.setBorder(BorderFactory.createTitledBorder("Liste des événements auxquels je participe"));
         panel.setBounds(10, 11, 631, 530);
         panel.setLayout(new BorderLayout());
-         // Création du tableau avec un modèle de données modifiable
+        // Création du tableau avec un modèle de données modifiable
         String[] columnNames = { " ", "ID", "Nom", "Date Début", "Date Fin", "status de l'adhesion" };
         tableModel = new DefaultTableModel(columnNames, 0) {
             private static final long serialVersionUID = 1L;
@@ -180,43 +183,45 @@ public class MyRequest extends JFrame {
         panel_2.setLayout(null);
 
         JButton btnAnnulerParticipation = new JButton("Annuler ma participation");
-
+        btnAnnulerParticipation.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnAnnulerParticipation.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 int selectedRow = table.getSelectedRow(); // Récupérer la ligne sélectionnée
-                
-                System.out.println(selectedRow);
-                if(selectedRow !=-1) {
-                	// Vérifier si la case à cocher est sélectionnée
+
+                if (selectedRow != -1) {
+                    // Vérifier si la case à cocher est sélectionnée
                     Boolean isSelected = (Boolean) table.getValueAt(selectedRow, 0);
                     if (!isSelected) {
-                        JOptionPane.showMessageDialog(null, "Veuillez cocher la case de sélection pour annuler votre participation.",
+                        JOptionPane.showMessageDialog(null,
+                                "Veuillez cocher la case de sélection pour annuler votre participation.",
                                 "Case non cochée", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
-                }else {
-                	 JOptionPane.showMessageDialog(null, "Veuillez cocher la case de sélection pour annuler votre participation.",
-                             "Case non cochée", JOptionPane.WARNING_MESSAGE);
-					return;
-				}
-                
-                
+                } else {
+                    JOptionPane.showMessageDialog(null,
+                            "Veuillez cocher la case de sélection pour annuler votre participation.",
+                            "Case non cochée", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
 
                 // Récupérer l'ID de l'événement
                 int eventId = (int) table.getValueAt(selectedRow, 1);
 
                 // Demander confirmation
-                int confirm = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment annuler votre participation à cet événement ?",
+                int confirm = JOptionPane.showConfirmDialog(null,
+                        "Voulez-vous vraiment annuler votre participation à cet événement ?",
                         "Confirmation", JOptionPane.YES_NO_OPTION);
                 if (confirm == JOptionPane.YES_OPTION) {
                     // Annuler la participation de l'utilisateur à l'événement
                     boolean cancelled = part_EventController.cancelParticipation(idLoggedUser, eventId);
 
                     if (cancelled) {
-                        JOptionPane.showMessageDialog(null, "Participation annulée avec succès.", "Succès", JOptionPane.INFORMATION_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "Participation annulée avec succès.", "Succès",
+                                JOptionPane.INFORMATION_MESSAGE);
                         loadEventData(); // Rafraîchir la liste après annulation
                     } else {
-                        JOptionPane.showMessageDialog(null, "Erreur lors de l'annulation de la participation.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "Erreur lors de l'annulation de la participation.",
+                                "Erreur", JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }
@@ -228,6 +233,7 @@ public class MyRequest extends JFrame {
         panel_2.add(btnAnnulerParticipation);
 
         JButton btnClose = new JButton("Fermer");
+        btnClose.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnClose.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 dispose();
@@ -252,7 +258,8 @@ public class MyRequest extends JFrame {
             Object dateDebut = eventInfo.get("date_debut");
             Object dateFin = eventInfo.get("date_fin");
 
-            String formattedDateDebut = dateDebut != null ? outputFormatter.format((java.time.LocalDateTime) dateDebut) : "";
+            String formattedDateDebut = dateDebut != null ? outputFormatter.format((java.time.LocalDateTime) dateDebut)
+                    : "";
             String formattedDateFin = dateFin != null ? outputFormatter.format((java.time.LocalDateTime) dateFin) : "";
 
             Object[] rowData = {
@@ -271,12 +278,20 @@ public class MyRequest extends JFrame {
      * Affiche les détails d'un événement dans les labels.
      */
     private void showDetails(int selectedEventId) {
+        List<Part_Event> partsEvents = part_EventController.getPartsEvent(selectedEventId);
+        int participation = 0;
+
+        for (Part_Event part : partsEvents) {
+            if (part.getStatus() == PartEventStatus.VALIDEE) {
+                participation++;
+            }
+        }
 
         for (Map<String, Object> eventInfo : events) {
             if ((int) eventInfo.get("id_event") == selectedEventId) {
                 lblNom.setText((String) eventInfo.get("nom"));
                 tADescription.setText((String) eventInfo.get("description"));
-                lblCapacite.setText("Nombre de place disponible: " + eventInfo.get("capacite"));
+                lblCapacite.setText("Nombre de place disponible: " + ((int) eventInfo.get("capacite") - participation) +"/"+ (int) eventInfo.get("capacite"));
                 lblPrix.setText("Prix: " + eventInfo.get("prix") + " €");
                 lblDateDebut.setText(outputFormatter.format((java.time.LocalDateTime) eventInfo.get("date_debut")));
                 lblDateFin.setText(outputFormatter.format((java.time.LocalDateTime) eventInfo.get("date_fin")));

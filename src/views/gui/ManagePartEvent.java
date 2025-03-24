@@ -24,6 +24,7 @@ import utils.enums.PartEventStatus;
 import java.sql.Connection;
 import java.time.format.DateTimeFormatter;
 import java.awt.Color;
+import java.awt.Cursor;
 
 public class ManagePartEvent extends JFrame {
 
@@ -106,9 +107,10 @@ public class ManagePartEvent extends JFrame {
 			if (idLoggedUser == org.getIdUser())
 				isOrg = true;
 		}
-		System.out.println("Id event : " + idEvent + ", Id user : " + idLoggedUser + ", Is org : " + isOrg);
+
 		if (isOrg) {
 			JButton btnValidate = new JButton("Valider");
+			btnValidate.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 			btnValidate.setForeground(new Color(255, 255, 255));
 			btnValidate.setBorderPainted(false);
 			btnValidate.setBackground(new Color(0, 0, 160));
@@ -122,6 +124,7 @@ public class ManagePartEvent extends JFrame {
 			buttonPanel.add(btnValidate);
 
 			JButton btnReject = new JButton("Rejeter");
+			btnReject.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 			btnReject.setBackground(new Color(255, 255, 255));
 			btnReject.setBorderPainted(false);
 			btnReject.setBounds(321, 11, 173, 23);

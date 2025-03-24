@@ -2,6 +2,7 @@ package views.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Connection;
@@ -13,6 +14,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
+import controllers.EventController;
 import controllers.Org_EventController;
 import controllers.Part_EventController;
 import dao.Database;
@@ -20,6 +22,9 @@ import dao.EventDAO;
 import dao.Org_EventDAO;
 import dao.Part_EventDAO;
 import models.Event;
+import models.Part_Event;
+import models.User;
+import utils.enums.PartEventStatus;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -51,6 +56,9 @@ public class MyEvent extends JFrame {
         this.connection = Database.getConnection();
         this.org_EventDAO = new Org_EventDAO(connection);
         this.org_EventController = new Org_EventController(org_EventDAO);
+        this.part_EventDAO = new Part_EventDAO(connection);
+        this.part_EventController = new Part_EventController(new EventController(new EventDAO(connection)),
+                part_EventDAO);
         this.idLoggedUser = idLoggedUser;
 
         initialize();
@@ -154,6 +162,7 @@ public class MyEvent extends JFrame {
         panelDetails.add(lblNewLabel);
 
         JButton btnListPart = new JButton("Liste des participants");
+        btnListPart.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnListPart.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Vérifier si une ligne est sélectionnée
@@ -211,7 +220,7 @@ public class MyEvent extends JFrame {
 
         JLabel lblNewLabel_1 = new JLabel("");
         lblNewLabel_1.setIcon(new ImageIcon(
-                "D:\\UNIVERSITE_DE_CORSE\\SECOND SEMESTER\\PROJET-IHM\\SONCTRI\\scontri\\media\\laCarte.png"));
+                "C:\\Users\\Etudiant\\Documents\\COURS_L3_STI_UCPP\\SEMESTRE_2\\PROJET\\Scontri\\media\\laCarte.png"));
         lblNewLabel_1.setHorizontalAlignment(SwingConstants.CENTER);
         lblNewLabel_1.setBounds(10, 264, 329, 163);
         panelDetails.add(lblNewLabel_1);
@@ -222,6 +231,7 @@ public class MyEvent extends JFrame {
         panel_2.setLayout(null);
 
         JButton btnCreateEvent = new JButton("Créer un évenement");
+        btnCreateEvent.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnCreateEvent.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Créer la boîte de dialogue modale
@@ -250,6 +260,7 @@ public class MyEvent extends JFrame {
         panel_2.add(btnCreateEvent);
 
         JButton btnUpdateEvent = new JButton("Modifier");
+        btnUpdateEvent.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnUpdateEvent.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Vérifier si une ligne est sélectionnée
@@ -299,7 +310,7 @@ public class MyEvent extends JFrame {
         panel_2.add(btnUpdateEvent);
 
         JButton btnDeleteEvent = new JButton("Suprimer");
-
+        btnDeleteEvent.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnDeleteEvent.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 int selectedRow = table.getSelectedRow(); // Récupérer la ligne sélectionnée
@@ -339,6 +350,7 @@ public class MyEvent extends JFrame {
         panel_2.add(btnDeleteEvent);
 
         JButton btnClose = new JButton("Fermer");
+        btnClose.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnClose.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 dispose();
@@ -375,12 +387,22 @@ public class MyEvent extends JFrame {
      * Affiche les détails d'un événement dans les labels.
      */
     private void showDetails(int selectedEventId) {
+        List<Part_Event> partsEvents = part_EventController.getPartsEvent(selectedEventId);
+        int participation = 0;
+
+        for (Part_Event part : partsEvents) {
+            System.out.println("Status: " + part.getStatus());
+            if (part.getStatus() == PartEventStatus.VALIDEE) {
+                participation++;
+            }
+        }
 
         for (Event event : events) {
             if (event.getIdEvent() == selectedEventId) {
                 lblNom.setText(event.getNom());
                 tADescription.setText(event.getDescription());
-                lblCapacite.setText("Nombre de place disponible: " + event.getCapacite());
+                lblCapacite.setText("Nombre de place disponible: " + (event.getCapacite() - participation) + "/"
+						+ event.getCapacite());
                 lblPrix.setText("Prix: " + event.getPrix() + " €");
                 lblDateDebut.setText(event.getDateDebut().format(outputFormatter));
                 lblDateFin.setText(event.getDateFin().format(outputFormatter));

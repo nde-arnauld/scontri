@@ -42,7 +42,9 @@ import dao.EventDAO;
 import dao.Org_EventDAO;
 import dao.Part_EventDAO;
 import models.Event;
+import models.Part_Event;
 import models.User;
+import utils.enums.PartEventStatus;
 
 public class Home extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -196,6 +198,7 @@ public class Home extends JFrame {
 		// bouton "Liste des participants"
 
 		JButton btnListPart = new JButton("Liste des participants");
+		btnListPart.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		btnListPart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Vérifier si une ligne est sélectionnée
@@ -332,12 +335,21 @@ public class Home extends JFrame {
 	 * Affiche les détails d'un événement dans les labels.
 	 */
 	private void showDetails(int selectedEventId) {
+		List<Part_Event> partsEvents = part_EventController.getPartsEvent(selectedEventId);
+		int participation = 0;
+
+		for (Part_Event part : partsEvents) {
+			if (part.getStatus() == PartEventStatus.VALIDEE) {
+				participation++;
+			}
+		}
 
 		for (Event event : events) {
 			if (event.getIdEvent() == selectedEventId) {
 				lblNom.setText(event.getNom());
 				tADescription.setText(event.getDescription());
-				lblCapacite.setText("Nombre de place disponible: " + event.getCapacite());
+				lblCapacite.setText("Nombre de place disponible: " + (event.getCapacite() - participation) + "/"
+						+ event.getCapacite());
 				lblPrix.setText("Prix: " + event.getPrix() + " €");
 				lblDateDebut.setText(event.getDateDebut().format(outputFormatter));
 				lblDateFin.setText(event.getDateFin().format(outputFormatter));

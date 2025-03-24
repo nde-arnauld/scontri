@@ -150,6 +150,7 @@ public class CreateUpdateEvent extends JDialog {
 
         // Boutons
         btnValider = new JButton("Valider");
+        btnValider.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnValider.setBorderPainted(false);
         btnValider.setBackground(new Color(0, 0, 160));
         btnValider.setForeground(new Color(255, 255, 255));
@@ -197,6 +198,7 @@ public class CreateUpdateEvent extends JDialog {
         contentPane.add(btnValider);
 
         btnAnnuler = new JButton("Annuler");
+        btnAnnuler.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnAnnuler.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
         		txtNom.setText("");
