@@ -50,7 +50,7 @@ public class Logup extends JDialog {
 		setBounds(100, 100, 400, 650);
 		setModal(true);
 		setLocationRelativeTo(null);
-		setAlwaysOnTop(true);
+		//setAlwaysOnTop(true);
 
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -164,8 +164,8 @@ public class Logup extends JDialog {
 
 			password = Password.hasherMotDePasse(password);
 
-			LocalDate dateNaissance = LocalDate.parse(
-					String.format("%s-%02d-%02d", tf_date_annee.getText(), Integer.parseInt(tf_date_mois.getText()), Integer.parseInt(tf_date_jour.getText())));
+			LocalDate dateNaissance = LocalDate.parse(String.format("%s-%02d-%02d",
+					tf_date_annee.getText(), Integer.parseInt(tf_date_mois.getText()), Integer.parseInt(tf_date_jour.getText())));
 
 			LocalDate dateInscription = LocalDate.now();
 

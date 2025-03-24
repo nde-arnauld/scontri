@@ -18,6 +18,7 @@ import javax.swing.border.EmptyBorder;
 import controllers.UserController;
 import dao.Database;
 import dao.UserDAO;
+import java.awt.Cursor;
 
 public class Login extends JFrame { // Changement de JDialog à JFrame
 
@@ -95,6 +96,7 @@ public class Login extends JFrame { // Changement de JDialog à JFrame
 
 		// Bouton Valider
 		btnValider = new JButton("Se connecter");
+		btnValider.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		btnValider.setBorderPainted(false);
 		btnValider.setBackground(new Color(0, 0, 160));
 		btnValider.setForeground(Color.WHITE);
@@ -122,6 +124,7 @@ public class Login extends JFrame { // Changement de JDialog à JFrame
 
 		// Bouton Inscription
 		btnInscription = new JButton("S'inscrire");
+		btnInscription.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		btnInscription.setBorderPainted(false);
 		btnInscription.setForeground(Color.BLACK);
 		btnInscription.setBackground(Color.WHITE);
