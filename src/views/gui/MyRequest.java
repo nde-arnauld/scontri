@@ -15,7 +15,6 @@ import java.sql.Connection;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -30,7 +29,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
-import models.Event;
 
 public class MyRequest extends JFrame {
 
@@ -73,7 +71,7 @@ public class MyRequest extends JFrame {
         panel.setBorder(BorderFactory.createTitledBorder("Liste des événements auxquels je participe"));
         panel.setBounds(10, 11, 631, 530);
         panel.setLayout(new BorderLayout());
-        // Création du tableau avec un modèle de données modifiable
+         // Création du tableau avec un modèle de données modifiable
         String[] columnNames = { " ", "ID", "Nom", "Date Début", "Date Fin", "status de l'adhesion" };
         tableModel = new DefaultTableModel(columnNames, 0) {
             private static final long serialVersionUID = 1L;
@@ -186,14 +184,23 @@ public class MyRequest extends JFrame {
         btnAnnulerParticipation.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 int selectedRow = table.getSelectedRow(); // Récupérer la ligne sélectionnée
-
-                // Vérifier si la case à cocher est sélectionnée
-                Boolean isSelected = (Boolean) table.getValueAt(selectedRow, 0);
-                if (!isSelected) {
-                    JOptionPane.showMessageDialog(null, "Veuillez cocher la case de sélection pour annuler votre participation.",
-                            "Case non cochée", JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
+                
+                System.out.println(selectedRow);
+                if(selectedRow !=-1) {
+                	// Vérifier si la case à cocher est sélectionnée
+                    Boolean isSelected = (Boolean) table.getValueAt(selectedRow, 0);
+                    if (!isSelected) {
+                        JOptionPane.showMessageDialog(null, "Veuillez cocher la case de sélection pour annuler votre participation.",
+                                "Case non cochée", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                }else {
+                	 JOptionPane.showMessageDialog(null, "Veuillez cocher la case de sélection pour annuler votre participation.",
+                             "Case non cochée", JOptionPane.WARNING_MESSAGE);
+					return;
+				}
+                
+                
 
                 // Récupérer l'ID de l'événement
                 int eventId = (int) table.getValueAt(selectedRow, 1);

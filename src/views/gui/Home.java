@@ -259,7 +259,7 @@ public class Home extends JFrame {
 		panelDetails.add(lblNewLabel_1);
 
 		JPanel panel_2 = new JPanel();
-		panel_2.setBounds(10, 552, 989, 50);
+		panel_2.setBounds(10, 541, 989, 50);
 		contentPane.add(panel_2);
 		panel_2.setLayout(null);
 
@@ -289,7 +289,7 @@ public class Home extends JFrame {
 		btnParticiper.setBorderPainted(false);
 		btnParticiper.setForeground(UIConst.WHITE_COLOR);
 		btnParticiper.setBackground(UIConst.PRIMARY_COLOR);
-		btnParticiper.setBounds(196, 5, 200, 28);
+		btnParticiper.setBounds(196, 11, 200, 28);
 		panel_2.add(btnParticiper);
 
 	}
