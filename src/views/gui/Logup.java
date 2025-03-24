@@ -1,29 +1,22 @@
 package views.gui;
 
+import controllers.UserController;
+import dao.UserDAO;
 import java.awt.Color;
-import java.awt.Dialog;
-import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.text.NumberFormat;
 import java.time.LocalDate;
-
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-import javax.swing.JFormattedTextField;
 import javax.swing.SwingConstants;
-import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import javax.swing.text.NumberFormatter;
-
-import controllers.UserController;
-import dao.UserDAO;
 import utils.Password;
 
 public class Logup extends JDialog {
@@ -172,7 +165,7 @@ public class Logup extends JDialog {
 			password = Password.hasherMotDePasse(password);
 
 			LocalDate dateNaissance = LocalDate.parse(
-					"" + tf_date_annee.getText() + "-" + tf_date_mois.getText() + "-" + tf_date_jour.getText());
+					String.format("%s-%02d-%02d", tf_date_annee.getText(), Integer.parseInt(tf_date_mois.getText()), Integer.parseInt(tf_date_jour.getText())));
 
 			LocalDate dateInscription = LocalDate.now();
 
