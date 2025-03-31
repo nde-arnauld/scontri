@@ -25,8 +25,8 @@ public class UserDAO {
 
 	private Connection conn;
 
-	public UserDAO(Connection con) {
-		this.conn = con;
+	public UserDAO() {
+		this.conn = Database.getConnection();
 	}
 
 	public boolean addUser(User user) {

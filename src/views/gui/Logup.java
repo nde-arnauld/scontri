@@ -1,12 +1,7 @@
 package views.gui;
 
 import java.awt.Color;
-import java.awt.Dialog;
-import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.sql.Connection;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 
@@ -20,10 +15,8 @@ import javax.swing.JFormattedTextField;
 import javax.swing.SwingConstants;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import javax.swing.text.NumberFormatter;
 
 import controllers.UserController;
-import dao.UserDAO;
 import utils.Password;
 
 public class Logup extends JDialog {
@@ -34,16 +27,12 @@ public class Logup extends JDialog {
 	private JPasswordField tf_password;
 	private JFormattedTextField tf_telephone, tf_date_jour, tf_date_mois, tf_date_annee;
 	private JButton btnValider, btnAnnuler;
-	private Connection connection;
 	private UserController userController;
-	private UserDAO userDAO;
 
 	/**
 	 * Create the application.
 	 */
-	public Logup(Connection connection, UserDAO userDAO, UserController userController) {
-		this.connection = connection;
-		this.userDAO = userDAO;
+	public Logup(UserController userController) {
 		this.userController = userController;
 		initialize();
 	}
@@ -57,7 +46,7 @@ public class Logup extends JDialog {
 		setBounds(100, 100, 400, 650);
 		setModal(true);
 		setLocationRelativeTo(null);
-		//setAlwaysOnTop(true);
+		// setAlwaysOnTop(true);
 
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -172,7 +161,8 @@ public class Logup extends JDialog {
 			password = Password.hasherMotDePasse(password);
 
 			LocalDate dateNaissance = LocalDate.parse(String.format("%s-%02d-%02d",
-					tf_date_annee.getText(), Integer.parseInt(tf_date_mois.getText()), Integer.parseInt(tf_date_jour.getText())));
+					tf_date_annee.getText(), Integer.parseInt(tf_date_mois.getText()),
+					Integer.parseInt(tf_date_jour.getText())));
 
 			LocalDate dateInscription = LocalDate.now();
 

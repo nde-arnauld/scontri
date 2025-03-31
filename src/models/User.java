@@ -2,42 +2,49 @@ package models;
 
 import java.time.LocalDate;
 
+import dao.Database;
+import dao.UserDAO;
+
 public class User {
 	private int idUser;
-    private String nom;
-    private String prenom;
-    private String telephone;
-    private String email;
-    private String adresse;
-    private String motDePasse;
-    private LocalDate dateNaissance;
-    private LocalDate dateInscription;
-    private String roleSysteme;
-    
-    public User(int idUser, String nom, String prenom, String telephone, String email, String adresse, 
-            String motDePasse, LocalDate dateNaissance, LocalDate dateInscription, String roleSysteme) {
-    this.idUser = idUser;
-    this.nom = nom;
-    this.prenom = prenom;
-    this.telephone = telephone;
-    this.email = email;
-    this.adresse = adresse;
-    this.motDePasse = motDePasse;
-    this.dateNaissance = dateNaissance;
-    this.dateInscription = dateInscription;
-    this.roleSysteme = roleSysteme;
-    }
-    
-    public User(String nom, String prenom, String telephone, String email, String adresse, 
-            String motDePasse, LocalDate dateNaissance, LocalDate dateInscription, String roleSysteme) {
-    	this(0, nom, prenom, telephone, email, adresse, motDePasse, dateNaissance, dateInscription, roleSysteme);
-    }
-    
-    public User() {
-    	idUser = 0;
-    }
-    
-    public int getIdUser() {
+	private String nom;
+	private String prenom;
+	private String telephone;
+	private String email;
+	private String adresse;
+	private String motDePasse;
+	private LocalDate dateNaissance;
+	private LocalDate dateInscription;
+	private String roleSysteme;
+
+	private UserDAO userDAO = null;
+
+	public User() {
+		idUser = 0;
+		userDAO = new UserDAO();
+	}
+
+	public User(int idUser, String nom, String prenom, String telephone, String email, String adresse,
+			String motDePasse, LocalDate dateNaissance, LocalDate dateInscription, String roleSysteme) {
+		this.idUser = idUser;
+		this.nom = nom;
+		this.prenom = prenom;
+		this.telephone = telephone;
+		this.email = email;
+		this.adresse = adresse;
+		this.motDePasse = motDePasse;
+		this.dateNaissance = dateNaissance;
+		this.dateInscription = dateInscription;
+		this.roleSysteme = roleSysteme;
+		userDAO = new UserDAO();
+	}
+
+	public User(String nom, String prenom, String telephone, String email, String adresse,
+			String motDePasse, LocalDate dateNaissance, LocalDate dateInscription, String roleSysteme) {
+		this(0, nom, prenom, telephone, email, adresse, motDePasse, dateNaissance, dateInscription, roleSysteme);
+	}
+
+	public int getIdUser() {
 		return idUser;
 	}
 
@@ -118,17 +125,39 @@ public class User {
 	}
 
 	@Override
-    public String toString() {
-        return "User{" +
-                "idUser=" + idUser +
-                ", nom='" + nom + '\'' +
-                ", prenom='" + prenom + '\'' +
-                ", telephone='" + telephone + '\'' +
-                ", email='" + email + '\'' +
-                ", adresse='" + adresse + '\'' +
-                ", dateNaissance=" + dateNaissance +
-                ", dateInscription=" + dateInscription +
-                ", roleSystem='" + roleSysteme + '\'' +
-                '}';
-    }
+	public String toString() {
+		return "User{" +
+				"idUser=" + idUser +
+				", nom='" + nom + '\'' +
+				", prenom='" + prenom + '\'' +
+				", telephone='" + telephone + '\'' +
+				", email='" + email + '\'' +
+				", adresse='" + adresse + '\'' +
+				", dateNaissance=" + dateNaissance +
+				", dateInscription=" + dateInscription +
+				", roleSystem='" + roleSysteme + '\'' +
+				'}';
+	}
+
+	/* ====================================================== */
+	/* Méthode de gestion du modèle */
+	/* ====================================================== */
+	public boolean enregistrer() {
+		if (userDAO.userExist(this.email)) {
+			return false;
+		}
+		return userDAO.addUser(this);
+	}
+
+	public boolean existe(String email) {
+		return userDAO.userExist(email);
+	}
+
+	public String getHashedPassword(String email) {
+		return userDAO.userPassword(email);
+	}
+
+	public User getUserByEmail(String email) {
+		return userDAO.getUserByEmail(email);
+	}
 }

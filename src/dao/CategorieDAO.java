@@ -17,8 +17,8 @@ public class CategorieDAO {
 
     private Connection conn;
 
-    public CategorieDAO(Connection con) {
-        this.conn = con;
+    public CategorieDAO() {
+        this.conn = Database.getConnection();
     }
 
     public boolean addCategorie(Categorie categorie) {

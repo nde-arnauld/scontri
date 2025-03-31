@@ -26,10 +26,8 @@ public class EventDAO {
 
     private Connection conn;
 
-    public EventDAO(Connection con) {
-
-        this.conn = con;
-
+    public EventDAO() {
+        this.conn = Database.getConnection();
     }
 
     public int addEvent(Event event) {
@@ -46,7 +44,7 @@ public class EventDAO {
                 TB_ID_CAT +
                 ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        try (PreparedStatement stmt = conn.prepareStatement(sql,PreparedStatement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, event.getNom());
             stmt.setString(2, event.getDescription());
             stmt.setInt(3, event.getCapacite());
@@ -60,7 +58,7 @@ public class EventDAO {
 
             int affectedRows = stmt.executeUpdate();
             if (affectedRows > 0) {
-            	ResultSet generatedKeys = stmt.getGeneratedKeys();
+                ResultSet generatedKeys = stmt.getGeneratedKeys();
                 if (generatedKeys.next()) {
                     return generatedKeys.getInt(1);
                 }
@@ -106,10 +104,10 @@ public class EventDAO {
     }
 
     public boolean deleteEvent(int eventId) {
-        String sql = "UPDATE " + TB_NAME + " SET " + TB_STATUS +" = ? WHERE " + TB_ID_EVENT + " = ?";
+        String sql = "UPDATE " + TB_NAME + " SET " + TB_STATUS + " = ? WHERE " + TB_ID_EVENT + " = ?";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-        	stmt.setString(1, "supprime");
+            stmt.setString(1, "supprime");
             stmt.setInt(2, eventId);
 
             int result = stmt.executeUpdate();

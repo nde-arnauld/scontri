@@ -1,13 +1,20 @@
 package models;
 
+import java.util.List;
+
+import dao.CategorieDAO;
+
 public class Categorie {
-	
+
     private int idCat;
     private String nom;
+
+    private CategorieDAO categorieDAO;
 
     public Categorie(int idCat, String nom) {
         this.idCat = idCat;
         this.nom = nom;
+        categorieDAO = new CategorieDAO();
     }
 
     public Categorie(String nom) {
@@ -15,7 +22,7 @@ public class Categorie {
     }
 
     public Categorie() {
-        idCat = 0;
+        this("");
     }
 
     public int getIdCat() {
@@ -39,5 +46,29 @@ public class Categorie {
         return "Categorie{" +
                 "idCat = " + idCat +
                 ", nom = '" + nom + "'}";
+    }
+
+    public boolean existe(String nom) {
+        return categorieDAO.categorieExist(nom);
+    }
+
+    public boolean existe(int idCat) {
+        return categorieDAO.categorieExist(idCat);
+    }
+
+    public boolean enregistrer() {
+        return categorieDAO.addCategorie(this);
+    }
+
+    public boolean modifier() {
+        return categorieDAO.updateCategorie(this);
+    }
+
+    public boolean supprimer(int idCat) {
+        return categorieDAO.deleteCategorie(idCat);
+    }
+
+    public List<Categorie> toutesLesCategories() {
+        return categorieDAO.getAllCategories();
     }
 }

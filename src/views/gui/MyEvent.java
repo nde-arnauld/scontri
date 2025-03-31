@@ -5,8 +5,9 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.sql.Connection;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,13 +18,6 @@ import javax.swing.table.DefaultTableModel;
 import controllers.EventController;
 import controllers.Org_EventController;
 import controllers.Part_EventController;
-import dao.Database;
-import dao.EventDAO;
-import dao.Org_EventDAO;
-import dao.Part_EventDAO;
-import models.Event;
-import models.Part_Event;
-import models.User;
 import utils.enums.PartEventStatus;
 
 import java.awt.event.ActionListener;
@@ -38,27 +32,22 @@ public class MyEvent extends JFrame {
     private DefaultTableModel tableModel;
     private JLabel lblNom, lblCapacite, lblPrix, lblDateDebut, lblDateFin;
     private JTextArea tADescription;
-    private List<Event> events; // Liste des événements récupérés de la BDD
+    private List<HashMap<String, Object>> events; // Liste des événements récupérés de la BDD
     DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-    private Connection connection;
-    private Org_EventDAO org_EventDAO;
-    private Part_EventDAO part_EventDAO;
     private Org_EventController org_EventController;
     private Part_EventController part_EventController;
+
+    EventController eventController;
     private int idLoggedUser;
 
     /**
      * Create the frame.
      */
     public MyEvent(int idLoggedUser) {
-
-        this.connection = Database.getConnection();
-        this.org_EventDAO = new Org_EventDAO(connection);
-        this.org_EventController = new Org_EventController(org_EventDAO);
-        this.part_EventDAO = new Part_EventDAO(connection);
-        this.part_EventController = new Part_EventController(new EventController(new EventDAO(connection)),
-                part_EventDAO);
+        this.org_EventController = new Org_EventController();
+        this.part_EventController = new Part_EventController();
+        this.eventController = new EventController();
         this.idLoggedUser = idLoggedUser;
 
         initialize();
@@ -83,9 +72,6 @@ public class MyEvent extends JFrame {
         // Création du tableau avec un modèle de données modifiable
         String[] columnNames = { "ID", "Nom", "Date Début", "Date Fin" };
         tableModel = new DefaultTableModel(columnNames, 0) {
-            /**
-             * 
-             */
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -126,13 +112,6 @@ public class MyEvent extends JFrame {
         lblNom.setFont(new Font("Tahoma", Font.BOLD, 11));
         lblNom.setBounds(10, 23, 329, 23);
         panelDetails.add(lblNom);
-
-        // lblDescription = new JLabel("Description");
-        // lblDescription.setHorizontalAlignment(SwingConstants.CENTER);
-        // lblDescription.set
-        // lblDescription.setFont(new Font("Tahoma", Font.PLAIN, 11));
-        // lblDescription.setBounds(10, 123, 329, 86);
-        // panelDetails.add(lblDescription);
 
         lblCapacite = new JLabel("Capacité");
         lblCapacite.setFont(new Font("Tahoma", Font.BOLD, 11));
@@ -177,8 +156,6 @@ public class MyEvent extends JFrame {
                                                                               // colonne
 
                 // Récupérer la liste des participants
-                part_EventDAO = new Part_EventDAO(connection);
-                part_EventController = new Part_EventController(null, part_EventDAO);
                 List<Map<String, Object>> participantsInfo = part_EventController
                         .getParticipantsInfoForEvent(selectedEventId);
 
@@ -188,7 +165,7 @@ public class MyEvent extends JFrame {
                 dialog.setSize(600, 500);
                 dialog.setLocationRelativeTo(MyEvent.this);
 
-                ManagePartEvent managePartEvent = new ManagePartEvent(participantsInfo, connection, idLoggedUser,
+                ManagePartEvent managePartEvent = new ManagePartEvent(participantsInfo, idLoggedUser,
                         selectedEventId);
                 dialog.setContentPane(managePartEvent.getContentPane());
                 dialog.setVisible(true);
@@ -240,7 +217,7 @@ public class MyEvent extends JFrame {
                 dialog.setSize(400, 650);
                 dialog.setLocationRelativeTo(MyEvent.this);
 
-                CreateUpdateEvent createUpdateEvent = new CreateUpdateEvent(connection, idLoggedUser);
+                CreateUpdateEvent createUpdateEvent = new CreateUpdateEvent(idLoggedUser);
                 dialog.setContentPane(createUpdateEvent.getContentPane());
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
@@ -275,8 +252,7 @@ public class MyEvent extends JFrame {
                                                                               // colonne
 
                 // Récupérer l'événement depuis la base de données
-                EventDAO eventDAO = new EventDAO(connection);
-                Event selectedEvent = eventDAO.getEventById(selectedEventId);
+                HashMap<String, Object> selectedEvent = eventController.getEventById(selectedEventId);
 
                 if (selectedEvent == null) {
                     JOptionPane.showMessageDialog(null, "Erreur : Impossible de trouver l'événement sélectionné.");
@@ -290,7 +266,7 @@ public class MyEvent extends JFrame {
                 dialog.setLocationRelativeTo(MyEvent.this);
 
                 // Passer l'événement sélectionné à la fenêtre de modification
-                CreateUpdateEvent createUpdateEvent = new CreateUpdateEvent(selectedEvent, connection, idLoggedUser);
+                CreateUpdateEvent createUpdateEvent = new CreateUpdateEvent(selectedEvent, idLoggedUser);
                 dialog.setContentPane(createUpdateEvent.getContentPane());
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
@@ -328,8 +304,7 @@ public class MyEvent extends JFrame {
                         "Confirmation", JOptionPane.YES_NO_OPTION);
                 if (confirm == JOptionPane.YES_OPTION) {
                     // Supprimer l'événement de la base de données
-                    EventDAO eventDAO = new EventDAO(connection);
-                    boolean deleted = eventDAO.deleteEvent(eventId);
+                    boolean deleted = eventController.deleteEvent(eventId);
 
                     if (deleted) {
                         JOptionPane.showMessageDialog(null, "Événement supprimé avec succès.", "Succès",
@@ -371,13 +346,14 @@ public class MyEvent extends JFrame {
 
         events = org_EventController.getEventCreatedByOrg(idLoggedUser);
 
-        for (Event event : events) {
-
+        for (HashMap<String, Object> event : events) {
+            LocalDateTime dateDebut = (LocalDateTime) event.get("dateDebut");
+            LocalDateTime dateFin = (LocalDateTime) event.get("dateFin");
             Object[] rowData = {
-                    event.getIdEvent(),
-                    event.getNom(),
-                    event.getDateDebut().format(outputFormatter),
-                    event.getDateFin().format(outputFormatter)
+                    Integer.parseInt(event.get("id").toString()),
+                    event.get("nom"),
+                    dateDebut.format(outputFormatter),
+                    dateFin.format(outputFormatter)
             };
             tableModel.addRow(rowData);
         }
@@ -387,25 +363,32 @@ public class MyEvent extends JFrame {
      * Affiche les détails d'un événement dans les labels.
      */
     private void showDetails(int selectedEventId) {
-        List<Part_Event> partsEvents = part_EventController.getPartsEvent(selectedEventId);
+        List<Map<String, Object>> partsEvents = part_EventController.getParticipantsInfoForEvent(selectedEventId);
         int participation = 0;
 
-        for (Part_Event part : partsEvents) {
-            System.out.println("Status: " + part.getStatus());
-            if (part.getStatus() == PartEventStatus.VALIDEE) {
+        for (Map<String, Object> part : partsEvents) {
+            if (part.get("status").toString().equals(PartEventStatus.VALIDEE.toString())) {
                 participation++;
             }
         }
 
-        for (Event event : events) {
-            if (event.getIdEvent() == selectedEventId) {
-                lblNom.setText(event.getNom());
-                tADescription.setText(event.getDescription());
-                lblCapacite.setText("Nombre de place disponible: " + (event.getCapacite() - participation) + "/"
-						+ event.getCapacite());
-                lblPrix.setText("Prix: " + event.getPrix() + " €");
-                lblDateDebut.setText(event.getDateDebut().format(outputFormatter));
-                lblDateFin.setText(event.getDateFin().format(outputFormatter));
+        for (HashMap<String, Object> event : events) {
+            int idEvent = Integer.parseInt(event.get("id").toString());
+            String nom = event.get("nom").toString();
+            String description = event.get("description").toString();
+            int capacite = Integer.parseInt(event.get("capacite").toString());
+            double prix = Double.parseDouble(event.get("prix").toString());
+            LocalDateTime dateDebut = (LocalDateTime) event.get("dateDebut");
+            LocalDateTime dateFin = (LocalDateTime) event.get("dateFin");
+
+            if (idEvent == selectedEventId) {
+                lblNom.setText(nom);
+                tADescription.setText(description);
+                lblCapacite.setText("Nombre de place disponible: " + (capacite - participation) + "/"
+                        + capacite);
+                lblPrix.setText("Prix: " + prix + " €");
+                lblDateDebut.setText(dateDebut.format(outputFormatter));
+                lblDateFin.setText(dateFin.format(outputFormatter));
                 return;
             }
         }

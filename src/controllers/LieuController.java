@@ -1,43 +1,67 @@
 package controllers;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-import dao.LieuDAO;
 import models.Lieu;
 
 public class LieuController {
-    private LieuDAO lieuDAO;
+    private Lieu lieu;
 
-    public LieuController(LieuDAO lieuDAO) {
-        this.lieuDAO = lieuDAO;
+    public LieuController() {
+        this.lieu = new Lieu();
     }
 
     public boolean createLieu(String nom, String adresse, String ville, String codePostal) {
-        if (lieuDAO.lieuExiste(nom)) {
+        if (lieu.existe(nom)) {
             return false;
         }
 
-        Lieu lieu = new Lieu(nom, adresse, ville, codePostal);
-        return lieuDAO.addLieu(lieu);
+        lieu = new Lieu(nom, adresse, ville, codePostal);
+        return lieu.enregistrer();
     }
 
-    public boolean updateLieu(Lieu lieu) {
-        return lieuDAO.updateLieu(lieu);
+    public boolean updateLieu(int idLieu, String nom, String adresse, String ville, String codePostal) {
+        lieu = new Lieu(idLieu, nom, adresse, ville, codePostal);
+        return lieu.modifier();
     }
 
     public boolean deleteLieu(int idLieu) {
-        if (lieuDAO.lieuExiste(idLieu)) {
-            return lieuDAO.deleteLieu(idLieu);
+        if (lieu.existe(idLieu)) {
+            return lieu.supprimer(idLieu);
         } else
             return false;
     }
-    
-    public List<Lieu> getLieuxByName(String nom) {
-        return lieuDAO.getLieuxByName(nom);
+
+    public List<HashMap<String, String>> getLieuxByName(String nom) {
+        List<Lieu> lieux = lieu.lieuxParNom(nom);
+        List<HashMap<String, String>> lieuxList = new ArrayList<HashMap<String, String>>();
+        for (Lieu l : lieux) {
+            HashMap<String, String> lieuMap = new HashMap<String, String>();
+            lieuMap.put("id", String.valueOf(l.getIdLieu()));
+            lieuMap.put("nom", l.getNom());
+            lieuMap.put("adresse", l.getAdresse());
+            lieuMap.put("ville", l.getVille());
+            lieuMap.put("code_postal", l.getCodePostal());
+            lieuxList.add(lieuMap);
+        }
+        return lieuxList;
     }
-     
-    public List<Lieu> listLieux(){
-    	return lieuDAO.getAllLieux();
+
+    public List<HashMap<String, String>> listLieux() {
+        List<Lieu> lieux = lieu.tousLesLieux();
+        List<HashMap<String, String>> lieuxList = new ArrayList<HashMap<String, String>>();
+        for (Lieu l : lieux) {
+            HashMap<String, String> lieuMap = new HashMap<String, String>();
+            lieuMap.put("id", String.valueOf(l.getIdLieu()));
+            lieuMap.put("nom", l.getNom());
+            lieuMap.put("adresse", l.getAdresse());
+            lieuMap.put("ville", l.getVille());
+            lieuMap.put("code_postal", l.getCodePostal());
+            lieuxList.add(lieuMap);
+        }
+        return lieuxList;
     }
 
 }

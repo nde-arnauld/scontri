@@ -1,32 +1,29 @@
 package controllers;
 
-import dao.Part_EventDAO;
 import models.Event;
 import models.Part_Event;
 import models.User;
-import utils.enums.PartEventStatus;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Part_EventController {
-    private EventController eventController;
+    private Event event;
+    private Part_Event partEvent;
 
-    private Part_EventDAO partEventDAO;
-
-    public Part_EventController(EventController eventController,
-            Part_EventDAO partEventDAO) {
-        this.eventController = eventController;
-
-        this.partEventDAO = partEventDAO;
+    public Part_EventController() {
+        this.event = new Event();
+        this.partEvent = new Part_Event();
     }
 
     public boolean addPartEvent(int idUser, int idEvent) {
-        if (partEventDAO.userParticipatesInEvent(idUser, idEvent)) {
+        if (partEvent.participe(idUser, idEvent)) {
             return false;
         }
 
-        Event event = eventController.getEventById(idEvent);
+        event = event.evenementParId(idEvent);
 
         if (event.getStatus().compareTo("actif") != 0) {
             return false;
@@ -34,44 +31,74 @@ public class Part_EventController {
 
         Part_Event partEvent = new Part_Event(idUser, idEvent);
 
-        return partEventDAO.addPartEvent(partEvent);
+        return partEvent.enregistrer();
     }
 
     public boolean cancelParticipation(int idUser, int idEvent) { // annulation par le participant lui même
-        if (!partEventDAO.userParticipatesInEvent(idUser, idEvent)) {
+        if (!partEvent.participe(idUser, idEvent)) {
             return false;
         }
 
-        return partEventDAO.removePartEvent(idUser, idEvent);
+        return partEvent.annuler(idUser, idEvent);
     }
 
     public boolean updateParticipation(int idUser, int idEvent, String status) { // modification par l'organisateur de
                                                                                  // l'event
-        if (!partEventDAO.userParticipatesInEvent(idUser, idEvent)) {
+        if (!partEvent.participe(idUser, idEvent)) {
             return false;
         }
 
-        return partEventDAO.updatePartEventStatus(idUser, idEvent, status);
+        return partEvent.modifierStatus(idUser, idEvent, status);
     }
 
-    public List<Event> getEventsForUser(int idUser) {
-        return partEventDAO.getEventsForUser(idUser);
+    public List<HashMap<String, Object>> getEventsForUser(int idUser) {
+        List<Event> events = partEvent.evenementsParticipe(idUser);
+        List<HashMap<String, Object>> eventList = new ArrayList<>();
+
+        for (Event event : events) {
+            HashMap<String, Object> eventInfo = new HashMap<>();
+            eventInfo.put("id", event.getIdEvent());
+            eventInfo.put("nom", event.getNom());
+            eventInfo.put("description", event.getDescription());
+            eventInfo.put("capacite", event.getCapacite());
+            eventInfo.put("prix", event.getPrix());
+            eventInfo.put("dateDebut", event.getDateDebut());
+            eventInfo.put("dateFin", event.getDateFin());
+            eventInfo.put("dateCreation", event.getDateCreation());
+            eventInfo.put("status", event.getStatus());
+            eventInfo.put("idLieu", event.getIdLieu());
+            eventInfo.put("idCat", event.getIdCat());
+
+            eventList.add(eventInfo);
+        }
+        return eventList;
     }
 
-    public List<User> getUsersForEvent(int idEvent) {
-        return partEventDAO.getParticipantsFromEvent(idEvent);
+    public List<HashMap<String, Object>> getUsersForEvent(int idEvent) {
+        List<User> users = partEvent.participantsEvenement(idEvent);
+        List<HashMap<String, Object>> userList = new ArrayList<HashMap<String, Object>>();
+
+        for (User user : users) {
+            HashMap<String, Object> userInfo = new HashMap<>();
+            userInfo.put("idUser", user.getIdUser());
+            userInfo.put("nom", user.getNom());
+            userInfo.put("prenom", user.getPrenom());
+            userInfo.put("telephone", user.getTelephone());
+            userInfo.put("email", user.getEmail());
+            userInfo.put("adresse", user.getAdresse());
+            userInfo.put("dateNaissance", user.getDateNaissance());
+            userInfo.put("dateInscription", user.getDateInscription());
+            userInfo.put("roleSysteme", user.getRoleSysteme());
+            userList.add(userInfo);
+        }
+        return userList;
     }
 
     public List<Map<String, Object>> getParticipantsInfoForEvent(int idEvent) {
-        return partEventDAO.getParticipantsWithStatusFromEvent(idEvent);
+        return partEvent.participantsEvenementAvecStatus(idEvent);
     }
 
     public List<Map<String, Object>> getEventsInfoForUser(int idUser) {
-        return partEventDAO.getEventsWithStatusForUser(idUser);
-    }
-
-    // Retourne les participations à un évènement
-    public List<Part_Event> getPartsEvent(int idEvent) {
-        return partEventDAO.getPartsEvent(idEvent);
+        return partEvent.evenementsParticipeAvecStatus(idUser);
     }
 }

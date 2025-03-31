@@ -24,8 +24,8 @@ public class Part_EventDAO {
 
     private Connection conn;
 
-    public Part_EventDAO(Connection con) {
-        this.conn = con;
+    public Part_EventDAO() {
+        this.conn = Database.getConnection();
     }
 
     public boolean addPartEvent(Part_Event partEvent) {
@@ -171,7 +171,7 @@ public class Part_EventDAO {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 Map<String, Object> participantData = new HashMap<>();
-                participantData.put("id_user", rs.getInt("id_user"));
+                participantData.put("id", rs.getInt("id_user"));
                 participantData.put("nom", rs.getString("nom"));
                 participantData.put("prenom", rs.getString("prenom"));
                 participantData.put("telephone", rs.getString("telephone"));
@@ -183,7 +183,7 @@ public class Part_EventDAO {
                 participantData.put("role_systeme", rs.getString("role_systeme"));
                 participantData.put("status", rs.getString(TB_STATUS));
                 participantData.put("presence", rs.getString(TB_PRESENCE));
-                participantData.put("date_part", rs.getObject(TB_DATE_PART, LocalDateTime.class));
+                participantData.put("datePart", rs.getObject(TB_DATE_PART, LocalDateTime.class));
                 participants.add(participantData);
             }
         } catch (SQLException e) {
@@ -236,20 +236,20 @@ public class Part_EventDAO {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 Map<String, Object> eventData = new HashMap<>();
-                eventData.put("id_event", rs.getInt(TB_ID_EVENT));
+                eventData.put("id", rs.getInt(TB_ID_EVENT));
                 eventData.put("nom", rs.getString(EventDAO.TB_NOM));
                 eventData.put("description", rs.getString(EventDAO.TB_DESCRIPTION));
                 eventData.put("capacite", rs.getInt(EventDAO.TB_CAPACITE));
                 eventData.put("prix", rs.getDouble(EventDAO.TB_PRIX));
-                eventData.put("date_debut", rs.getTimestamp(EventDAO.TB_DATE_DEBUT).toLocalDateTime());
-                eventData.put("date_fin", rs.getTimestamp(EventDAO.TB_DATE_FIN).toLocalDateTime());
-                eventData.put("date_creation", rs.getTimestamp(EventDAO.TB_DATE_CREATION).toLocalDateTime());
+                eventData.put("dateDebut", rs.getTimestamp(EventDAO.TB_DATE_DEBUT).toLocalDateTime());
+                eventData.put("dateFin", rs.getTimestamp(EventDAO.TB_DATE_FIN).toLocalDateTime());
+                eventData.put("dateCreation", rs.getTimestamp(EventDAO.TB_DATE_CREATION).toLocalDateTime());
                 eventData.put("status", rs.getString(EventDAO.TB_STATUS));
-                eventData.put("id_lieu", rs.getInt(EventDAO.TB_ID_LIEU));
-                eventData.put("id_cat", rs.getInt(EventDAO.TB_ID_CAT));
-                eventData.put("part_status", rs.getString("part_status"));
+                eventData.put("idLieu", rs.getInt(EventDAO.TB_ID_LIEU));
+                eventData.put("idCat", rs.getInt(EventDAO.TB_ID_CAT));
+                eventData.put("partStatus", rs.getString("part_status"));
                 eventData.put("presence", rs.getString(TB_PRESENCE));
-                eventData.put("date_part", rs.getObject(TB_DATE_PART, LocalDateTime.class));
+                eventData.put("datePart", rs.getObject(TB_DATE_PART, LocalDateTime.class));
                 eventsWithStatus.add(eventData);
             }
         } catch (SQLException e) {

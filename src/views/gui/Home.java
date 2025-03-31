@@ -7,8 +7,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Connection;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -53,7 +55,7 @@ public class Home extends JFrame {
 	private DefaultTableModel tableModel;
 	private JLabel lblNom, lblCapacite, lblPrix, lblDateDebut, lblDateFin;
 	private JTextArea tADescription;
-	private List<Event> events;
+	private List<HashMap<String, Object>> events;
 	private DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
 	private Org_EventController org_EventController;
@@ -64,17 +66,15 @@ public class Home extends JFrame {
 	/**
 	 * Create the application.
 	 */
-	public Home(User user) {
-		Connection connection = Database.getConnection();
+	public Home(HashMap<String, String> userInfos) {
+		this.idLoggedUser = Integer.parseInt(userInfos.get("id"));
+		setTitle("Accueil    Utilisateur connecté --> " + userInfos.get("nom") + " " + userInfos.get("prenom"));
 
-		this.idLoggedUser = user.getIdUser();
-		setTitle("Accueil    Utilisateur connecté --> " + user.getNom() + " " + user.getPrenom());
+		eventController = new EventController();
+		org_EventController = new Org_EventController();
+		part_EventController = new Part_EventController();
 
-		eventController = new EventController(new EventDAO(connection));
-		org_EventController = new Org_EventController(new Org_EventDAO(connection));
-		part_EventController = new Part_EventController(eventController, new Part_EventDAO(connection));
-
-		events = new ArrayList<Event>();
+		events = new ArrayList<HashMap<String, Object>>();
 
 		initialize();
 	}
@@ -213,8 +213,6 @@ public class Home extends JFrame {
 																				// colonne
 
 				// Récupérer la liste des participants
-				part_EventController = new Part_EventController(eventController,
-						new Part_EventDAO(Database.getConnection()));
 				List<Map<String, Object>> participantsInfo = part_EventController
 						.getParticipantsInfoForEvent(selectedEventId);
 
@@ -224,8 +222,7 @@ public class Home extends JFrame {
 				dialog.setSize(600, 500);
 				dialog.setLocationRelativeTo(Home.this);
 
-				ManagePartEvent managePartEvent = new ManagePartEvent(participantsInfo, Database.getConnection(),
-						idLoggedUser, selectedEventId);
+				ManagePartEvent managePartEvent = new ManagePartEvent(participantsInfo, idLoggedUser, selectedEventId);
 				dialog.setContentPane(managePartEvent.getContentPane());
 				dialog.setVisible(true);
 			}
@@ -302,30 +299,34 @@ public class Home extends JFrame {
 	 */
 	private void loadEventData() {
 
-		List<Event> allEvent = eventController.listEvents();
+		List<HashMap<String, Object>> allEvent = eventController.listEvents();
 
-		for (Event event : allEvent) {
-			List<User> orgs = org_EventController.listOrgsEvent(event.getIdEvent());
+		for (HashMap<String, Object> event : allEvent) {
+			List<HashMap<String, Object>> orgs = org_EventController
+					.listOrgsEvent(Integer.parseInt(event.get("id").toString()));
 			boolean isOrg = false;
 
-			for (User org : orgs) {
-				if (org.getIdUser() == idLoggedUser) {
+			for (HashMap<String, Object> org : orgs) {
+				if (Integer.parseInt(org.get("id").toString()) == idLoggedUser) {
 					isOrg = true;
 				}
 			}
 
-			if (event.getStatus().compareTo("actif") == 0 && !isOrg) {
+			String eventStatus = event.get("status").toString();
+
+			if (eventStatus.compareTo("actif") == 0 && !isOrg) {
 				events.add(event);
 			}
 		}
 
-		for (Event event : events) {
-
+		for (HashMap<String, Object> event : events) {
+			LocalDateTime dateDebut = (LocalDateTime) event.get("dateDebut");
+			LocalDateTime dateFin = (LocalDateTime) event.get("dateFin");
 			Object[] rowData = {
-					event.getIdEvent(),
-					event.getNom(),
-					event.getDateDebut().format(outputFormatter),
-					event.getDateFin().format(outputFormatter)
+					Integer.parseInt(event.get("id").toString()),
+					event.get("nom"),
+					dateDebut.format(outputFormatter),
+					dateFin.format(outputFormatter)
 			};
 			tableModel.addRow(rowData);
 		}
@@ -335,24 +336,31 @@ public class Home extends JFrame {
 	 * Affiche les détails d'un événement dans les labels.
 	 */
 	private void showDetails(int selectedEventId) {
-		List<Part_Event> partsEvents = part_EventController.getPartsEvent(selectedEventId);
+		List<Map<String, Object>> partsEvents = part_EventController.getParticipantsInfoForEvent(selectedEventId);
+
 		int participation = 0;
 
-		for (Part_Event part : partsEvents) {
-			if (part.getStatus() == PartEventStatus.VALIDEE) {
+		for (Map<String, Object> part : partsEvents) {
+			if (part.get("status").toString().equals(PartEventStatus.VALIDEE.toString())) {
 				participation++;
 			}
 		}
 
-		for (Event event : events) {
-			if (event.getIdEvent() == selectedEventId) {
-				lblNom.setText(event.getNom());
-				tADescription.setText(event.getDescription());
-				lblCapacite.setText("Nombre de place disponible: " + (event.getCapacite() - participation) + "/"
-						+ event.getCapacite());
-				lblPrix.setText("Prix: " + event.getPrix() + " €");
-				lblDateDebut.setText(event.getDateDebut().format(outputFormatter));
-				lblDateFin.setText(event.getDateFin().format(outputFormatter));
+		for (HashMap<String, Object> event : events) {
+			int id = Integer.parseInt(event.get("id").toString());
+			int capacite = Integer.parseInt(event.get("capacite").toString());
+			double prix = Double.parseDouble(event.get("prix").toString());
+			LocalDateTime dateDebut = (LocalDateTime) event.get("dateDebut");
+			LocalDateTime dateFin = (LocalDateTime) event.get("dateFin");
+
+			if (id == selectedEventId) {
+				lblNom.setText(event.get("nom").toString());
+				tADescription.setText(event.get("description").toString());
+				lblCapacite.setText("Nombre de place disponible: " + (capacite - participation) + "/"
+						+ capacite);
+				lblPrix.setText("Prix: " + prix + " €");
+				lblDateDebut.setText(dateDebut.format(outputFormatter));
+				lblDateFin.setText(dateFin.format(outputFormatter));
 				return;
 			}
 		}

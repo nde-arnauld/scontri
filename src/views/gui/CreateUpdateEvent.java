@@ -4,20 +4,27 @@ import controllers.CategorieController;
 import controllers.EventController;
 import controllers.LieuController;
 import controllers.Org_EventController;
-import dao.CategorieDAO;
-import dao.EventDAO;
-import dao.LieuDAO;
-import dao.Org_EventDAO;
-import java.awt.*;
+
+import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
-import javax.swing.*;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SpinnerDateModel;
 import javax.swing.border.EmptyBorder;
-import models.Categorie;
-import models.Event;
-import models.Lieu;
 
 public class CreateUpdateEvent extends JDialog {
 
@@ -27,41 +34,33 @@ public class CreateUpdateEvent extends JDialog {
     private JTextArea txtDescription;
     private JSpinner dateDebutSpinner, dateFinSpinner;
     private JButton btnValider, btnAnnuler;
-    private List<Categorie> listOfCategories;
-    private List<Lieu> listOfLieux;
-    private Event theEvent; // L'événement sélectionné (si modification)
-    private LieuDAO lieuDAO;
-    private CategorieDAO categorieDAO;
+    private List<HashMap<String, String>> listOfCategories;
+    private List<HashMap<String, String>> listOfLieux;
+    private HashMap<String, Object> theEvent;
     private LieuController lieuController;
     private CategorieController categorieController;
-    private EventDAO eventDAO;
     private EventController eventController;
-    private Org_EventDAO org_EventDAO;
     private Org_EventController org_EventController;
     private int idLoggedUser;
+
     /**
      * Constructeur pour la modification
      */
-    public CreateUpdateEvent(Event event, Connection connection, int idUser) {
+    public CreateUpdateEvent(HashMap<String, Object> event, int idUser) {
         this.theEvent = event;
         this.idLoggedUser = idUser;
-        this.lieuDAO = new LieuDAO(connection) ;
-        this.categorieDAO = new CategorieDAO(connection);
-        this.lieuController = new LieuController(lieuDAO);
-        this.categorieController = new CategorieController(categorieDAO);
-        this.eventDAO = new EventDAO(connection);
-        this.eventController = new EventController(eventDAO);
-        this.org_EventDAO = new Org_EventDAO(connection);
-        this.org_EventController = new Org_EventController(org_EventDAO);
+        this.categorieController = new CategorieController();
+        this.eventController = new EventController();
+        this.org_EventController = new Org_EventController();
+        this.lieuController = new LieuController();
         initialize();
     }
 
     /**
      * Constructeur pour la création
-     * @wbp.parser.constructor
      */
-    public CreateUpdateEvent(Connection connection,int idUser) {
-        this(null,connection,idUser);
+    public CreateUpdateEvent(int idUser) {
+        this(null, idUser);
     }
 
     /**
@@ -157,42 +156,64 @@ public class CreateUpdateEvent extends JDialog {
         btnValider.setBounds(10, 570, 178, 33);
         btnValider.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-            try {
-                String nom = txtNom.getText();
-                String description = txtDescription.getText();
-                int capacite = Integer.parseInt(txtCapacite.getText());
-                double prix = Double.parseDouble(txtPrix.getText());
-                java.util.Date dateDebutUtil = (java.util.Date) dateDebutSpinner.getValue();
-                java.time.LocalDateTime dateDebut = dateDebutUtil.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime();
-                java.util.Date dateFinUtil = (java.util.Date) dateFinSpinner.getValue();
-                java.time.LocalDateTime dateFin = dateFinUtil.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime();
-                int lieu = Integer.parseInt(((String) comboLieu.getSelectedItem()).split("-")[0]);
-                int categorie = Integer.parseInt(((String) comboCategorie.getSelectedItem()).split("-")[0]);
+                try {
+                    String nom = txtNom.getText();
+                    String description = txtDescription.getText();
+                    int capacite = Integer.parseInt(txtCapacite.getText());
+                    double prix = Double.parseDouble(txtPrix.getText());
+                    java.util.Date dateDebutUtil = (java.util.Date) dateDebutSpinner.getValue();
+                    java.time.LocalDateTime dateDebut = dateDebutUtil.toInstant()
+                            .atZone(java.time.ZoneId.systemDefault()).toLocalDateTime();
+                    java.util.Date dateFinUtil = (java.util.Date) dateFinSpinner.getValue();
+                    java.time.LocalDateTime dateFin = dateFinUtil.toInstant().atZone(java.time.ZoneId.systemDefault())
+                            .toLocalDateTime();
 
-                if (theEvent == null) {
-                // Création d'un nouvel événement               
-                int eventId = eventController.createEvent(nom, description, capacite, prix, dateDebut, dateFin, "actif", lieu, categorie);
-                boolean isCreated = org_EventController.createOrgEvent( idLoggedUser, eventId);
-                if (isCreated) {
-                    JOptionPane.showMessageDialog(null, "Événement créer avec succès.");
-                } else {
-                    JOptionPane.showMessageDialog(null, "Échec de la création de l'événement.", "Erreur", JOptionPane.ERROR_MESSAGE);
-                }
-                
-                } else {
-                // Modification de l'événement existant
-                boolean isUpdated = eventController.updateEvent(theEvent.getIdEvent(), nom, description, capacite, prix, dateDebut, dateFin, "actif", lieu, categorie);
-                if (isUpdated) {
-                    JOptionPane.showMessageDialog(null, "Événement mis à jour avec succès.");
-                } else {
-                    JOptionPane.showMessageDialog(null, "Échec de la mise à jour de l'événement.", "Erreur", JOptionPane.ERROR_MESSAGE);
-                }
+                    int idLieu = 0;
+                    int idCat = 0;
 
+                    for (HashMap<String, String> lieu : listOfLieux) {
+                        if (lieu.get("nom").equals(comboLieu.getSelectedItem())) {
+                            idLieu = Integer.parseInt(lieu.get("id").toString());
+                            ;
+                        }
+                    }
+
+                    for (HashMap<String, String> category : listOfCategories) {
+                        if (category.get("nom").equals(comboCategorie.getSelectedItem())) {
+                            idCat = Integer.parseInt(category.get("id").toString());
+                        }
+                    }
+
+                    if (theEvent == null) {
+                        // Création d'un nouvel événement
+                        int eventId = eventController.createEvent(nom, description, capacite, prix, dateDebut, dateFin,
+                                "actif", idLieu, idCat);
+                        boolean isCreated = org_EventController.createOrgEvent(idLoggedUser, eventId);
+                        if (isCreated) {
+                            JOptionPane.showMessageDialog(null, "Événement créer avec succès.");
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Échec de la création de l'événement.", "Erreur",
+                                    JOptionPane.ERROR_MESSAGE);
+                        }
+
+                    } else {
+                        int idEvent = Integer.parseInt(theEvent.get("id").toString());
+                        // Modification de l'événement existant
+                        boolean isUpdated = eventController.updateEvent(idEvent, nom, description,
+                                capacite, prix, dateDebut, dateFin, "actif", idLieu, idCat);
+                        if (isUpdated) {
+                            JOptionPane.showMessageDialog(null, "Événement mis à jour avec succès.");
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Échec de la mise à jour de l'événement.", "Erreur",
+                                    JOptionPane.ERROR_MESSAGE);
+                        }
+
+                    }
+                    dispose();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(CreateUpdateEvent.this, "Erreur: " + ex.getMessage(), "Erreur",
+                            JOptionPane.ERROR_MESSAGE);
                 }
-                dispose();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(CreateUpdateEvent.this, "Erreur: " + ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
-            }
             }
         });
         contentPane.add(btnValider);
@@ -200,12 +221,12 @@ public class CreateUpdateEvent extends JDialog {
         btnAnnuler = new JButton("Annuler");
         btnAnnuler.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnAnnuler.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        		txtNom.setText("");
+            public void actionPerformed(ActionEvent e) {
+                txtNom.setText("");
                 txtDescription.setText("");
                 txtCapacite.setText("");
                 txtPrix.setText("");
-        	}
+            }
         });
         btnAnnuler.setBorderPainted(false);
         btnAnnuler.setForeground(Color.black);
@@ -215,33 +236,44 @@ public class CreateUpdateEvent extends JDialog {
 
         // Remplir les champs si modification
         if (theEvent != null) {
-            txtNom.setText(theEvent.getNom());
-            txtDescription.setText(theEvent.getDescription());
-            txtCapacite.setText(String.valueOf(theEvent.getCapacite()));
-            txtPrix.setText(String.valueOf(theEvent.getPrix()));
-            dateDebutSpinner.setValue(java.sql.Timestamp.valueOf(theEvent.getDateDebut()));
-            dateFinSpinner.setValue(java.sql.Timestamp.valueOf(theEvent.getDateFin()));
-            comboLieu.setSelectedItem(theEvent.getIdLieu());
-            comboCategorie.setSelectedItem(theEvent.getIdCat());
+            String nom = theEvent.get("nom").toString();
+            String description = theEvent.get("description").toString();
+            String capacite = theEvent.get("capacite").toString();
+            String prix = theEvent.get("prix").toString();
+
+            // Correction des dates
+            LocalDateTime dateDebut = LocalDateTime.parse(theEvent.get("dateDebut").toString());
+            LocalDateTime dateFin = LocalDateTime.parse(theEvent.get("dateFin").toString());
+
+            int idLieu = Integer.parseInt(theEvent.get("idLieu").toString());
+            int idCat = Integer.parseInt(theEvent.get("idCat").toString());
+
+            txtNom.setText(nom);
+            txtDescription.setText(description);
+            txtCapacite.setText(capacite);
+            txtPrix.setText(prix);
+            dateDebutSpinner.setValue(java.sql.Timestamp.valueOf(dateDebut));
+            dateFinSpinner.setValue(java.sql.Timestamp.valueOf(dateFin));
+            comboLieu.setSelectedItem(idLieu);
+            comboCategorie.setSelectedItem(idCat);
         }
     }
 
     private void LoadLieuComboBox(JComboBox<String> comboLieu) {
-    	// Code pour charger les catégories dans la combo box
-    	listOfLieux = lieuController.listLieux();
-    	
-        for (Lieu lieu : listOfLieux) {
-            comboLieu.addItem(lieu.getIdLieu() + "-"+ lieu.getNom());
+        // Code pour charger les catégories dans la combo box
+        listOfLieux = lieuController.listLieux();
+
+        for (HashMap<String, String> lieu : listOfLieux) {
+            comboLieu.addItem(lieu.get("nom"));
         }
     }
 
     private void LoadCategorieComboBox(JComboBox<String> comboCategorie) {
         // Code pour charger les catégories dans la combo box
-    	listOfCategories = categorieController.listCategories();
-    	
-        for (Categorie categorie : listOfCategories) {
-            comboCategorie.addItem(categorie.getIdCat() + "-"+categorie.getNom());
+        listOfCategories = categorieController.listCategories();
+
+        for (HashMap<String, String> categorie : listOfCategories) {
+            comboCategorie.addItem(categorie.get("nom"));
         }
     }
-
 }
