@@ -4,5 +4,5 @@ bin/
 .settings
 .vscode
 .metadata
-src/dao/Database.java
+src/dao/Database
 media/
