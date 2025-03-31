@@ -3,6 +3,7 @@ package views.gui;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JButton;
@@ -33,7 +34,6 @@ public class ManagePartEvent extends JFrame {
 	private List<Map<String, Object>> participantsList;
 	private JTable table;
 	private DefaultTableModel tableModel;
-	private Part_EventDAO part_EventDAO;
 	private Part_EventController part_EventController;
 	DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
@@ -45,12 +45,11 @@ public class ManagePartEvent extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public ManagePartEvent(List<Map<String, Object>> usersList, Connection connection, int idLoggedUser, int idEvent) {
+	public ManagePartEvent(List<Map<String, Object>> usersList, int idLoggedUser, int idEvent) {
 		this.participantsList = usersList;
 		this.idEvent = idEvent;
-		this.part_EventDAO = new Part_EventDAO(connection);
-		this.part_EventController = new Part_EventController(null, part_EventDAO);
-		this.org_EventController = new Org_EventController(new Org_EventDAO(connection));
+		this.part_EventController = new Part_EventController();
+		this.org_EventController = new Org_EventController();
 
 		this.idLoggedUser = idLoggedUser;
 		initialize();
@@ -102,9 +101,10 @@ public class ManagePartEvent extends JFrame {
 
 		boolean isOrg = false;
 
-		List<User> orgs = org_EventController.listOrgsEvent(idEvent);
-		for (User org : orgs) {
-			if (idLoggedUser == org.getIdUser())
+		List<HashMap<String, Object>> orgs = org_EventController.listOrgsEvent(idEvent);
+		for (HashMap<String, Object> org : orgs) {
+			int id = Integer.parseInt(org.get("id").toString());
+			if (idLoggedUser == id)
 				isOrg = true;
 		}
 

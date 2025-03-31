@@ -1,5 +1,6 @@
 package views.console;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
@@ -22,7 +23,7 @@ public class Part_EventView {
      * @param evenements : La liste des évènements.
      * @param message    : Une précision sur les évènements qui seront affichés.
      */
-    public void afficherEvenements(List<Event> evenements, String message) {
+    public void afficherEvenements(List<HashMap<String, Object>> evenements, String message) {
         if (evenements.size() <= 0) {
             System.out.println("Aucun évènement disponible pour le moment.");
             return;
@@ -30,9 +31,15 @@ public class Part_EventView {
 
         System.out.println("\n" + message);
 
-        for (Event event : evenements) {
+        for (HashMap<String, Object> event : evenements) {
             System.out.print("<-> ");
-            System.out.println(event);
+            System.out.println("Event{" +
+                    "[ idEvent = " + event.get("id") +
+                    " ], nom='" + event.get("nom") +
+                    ", description='" + event.get("description") +
+                    ", dateDebut=" + event.get("dateDebut") +
+                    ", dateFin=" + event.get("dateFin") +
+                    '}');
         }
     }
 

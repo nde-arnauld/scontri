@@ -1,44 +1,56 @@
 package controllers;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-import dao.CategorieDAO;
 import models.Categorie;
 
 public class CategorieController {
-    private CategorieDAO categorieDAO;
+    private Categorie categorie;
 
-    public CategorieController(CategorieDAO categorieDAO) {
-        this.categorieDAO = categorieDAO;
+    public CategorieController() {
+        this.categorie = new Categorie();
     }
-    
+
     public boolean createCategorie(String nom) {
-        if (categorieDAO.categorieExist(nom)) {
+        if (categorie.existe(nom)) {
             return false;
         }
 
-        Categorie categorie = new Categorie(nom);
-        return categorieDAO.addCategorie(categorie);
+        categorie = new Categorie(nom);
+        return categorie.enregistrer();
     }
 
     public boolean categorieExist(String nom) {
-        return categorieDAO.categorieExist(nom);
+        return categorie.existe(nom);
     }
 
     public boolean updateCategorie(int idCat, String nouveauNom) {
-        if (!categorieDAO.categorieExist(idCat)) {
+        if (!categorie.existe(idCat)) {
             return false;
         }
 
-        Categorie categorie = new Categorie(idCat, nouveauNom);
-        return categorieDAO.updateCategorie(categorie);
+        categorie = new Categorie(idCat, nouveauNom);
+        return categorie.modifier();
     }
 
     public boolean deleteCategorie(int idCat) {
-        return categorieDAO.deleteCategorie(idCat);
+        return categorie.supprimer(idCat);
     }
-    
-    public List<Categorie> listCategories() {
-        return categorieDAO.getAllCategories();
+
+    public List<HashMap<String, String>> listCategories() {
+        List<Categorie> myCategories = categorie.toutesLesCategories();
+
+        List<HashMap<String, String>> categoriesList = new ArrayList<HashMap<String, String>>();
+
+        for (Categorie cat : myCategories) {
+            HashMap<String, String> categoryMap = new HashMap<String, String>();
+            categoryMap.put("id", String.valueOf(cat.getIdCat()));
+            categoryMap.put("nom", cat.getNom());
+            categoriesList.add(categoryMap);
+        }
+
+        return categoriesList;
     }
 }

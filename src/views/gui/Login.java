@@ -3,8 +3,8 @@ package views.gui;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import javax.swing.JButton;
 import javax.swing.JFrame; // Changement de JDialog à JFrame
@@ -16,8 +16,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import controllers.UserController;
-import dao.Database;
-import dao.UserDAO;
+
 import java.awt.Cursor;
 
 public class Login extends JFrame { // Changement de JDialog à JFrame
@@ -28,9 +27,7 @@ public class Login extends JFrame { // Changement de JDialog à JFrame
 	private JPasswordField tf_password;
 	private JButton btnValider, btnInscription;
 
-	private Connection connection;
 	private UserController userController;
-	private UserDAO userDAO;
 
 	/**
 	 * Launch the application.
@@ -48,9 +45,7 @@ public class Login extends JFrame { // Changement de JDialog à JFrame
 	 * Create the dialog.
 	 */
 	public Login() {
-		connection = Database.getConnection();
-		userDAO = new UserDAO(connection);
-		userController = new UserController(userDAO);
+		userController = new UserController();
 		initialize();
 	}
 
@@ -110,7 +105,9 @@ public class Login extends JFrame { // Changement de JDialog à JFrame
 				boolean result = userController.loginUser(email, password);
 
 				if (result) {
-					Home home = new Home(userController.getLoggedUser());
+					HashMap<String, String> userInfos = userController.getLoggedUserInfos();
+
+					Home home = new Home(userInfos);
 					home.setVisible(true);
 					dispose();
 				} else {
@@ -131,7 +128,7 @@ public class Login extends JFrame { // Changement de JDialog à JFrame
 		btnInscription.setBounds(198, 220, 178, 33);
 		btnInscription.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Logup logup = new Logup(connection, userDAO, userController);
+				Logup logup = new Logup(userController);
 				logup.setVisible(true);
 			}
 		});

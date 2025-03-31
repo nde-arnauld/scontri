@@ -1,6 +1,9 @@
 package models;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
+import dao.EventDAO;
 
 public class Event {
     private int idEvent;
@@ -14,6 +17,8 @@ public class Event {
     private String status;
     private int idLieu;
     private int idCat;
+
+    private EventDAO eventDAO;
 
     public Event(int idEvent, String nom, String description, int capacite, double prix,
             LocalDateTime dateDebut, LocalDateTime dateFin, LocalDateTime dateCreation,
@@ -29,6 +34,8 @@ public class Event {
         this.status = status;
         this.idLieu = idLieu;
         this.idCat = idCat;
+
+        this.eventDAO = new EventDAO();
     }
 
     public Event(String nom, String description, int capacite, double prix,
@@ -40,6 +47,7 @@ public class Event {
 
     public Event() {
         idEvent = 0;
+        this.eventDAO = new EventDAO();
     }
 
     // Getters et Setters
@@ -140,5 +148,32 @@ public class Event {
                 ", dateDebut=" + dateDebut +
                 ", dateFin=" + dateFin +
                 '}';
+    }
+
+    /* ====================================================== */
+    /* Méthode de gestion du modèle */
+    /* ====================================================== */
+    public int enregistrer() {
+        return eventDAO.addEvent(this);
+    }
+
+    public boolean modifier() {
+        return eventDAO.updateEvent(this);
+    }
+
+    public Event evenementParId(int idEvent) {
+        return eventDAO.getEventById(idEvent);
+    }
+
+    public boolean supprimer(int idEvent) {
+        return eventDAO.deleteEvent(idEvent);
+    }
+
+    public List<Event> tousLesEvenements() {
+        return eventDAO.getAllEvents();
+    }
+
+    public boolean existe(int idEvent) {
+        return eventDAO.eventExists(idEvent);
     }
 }

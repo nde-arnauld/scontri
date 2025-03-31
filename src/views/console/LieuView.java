@@ -1,5 +1,6 @@
 package views.console;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 import controllers.LieuController;
@@ -45,8 +46,7 @@ public class LieuView {
         System.out.print("Nouveau code postal : ");
         String codePostal = scanner.nextLine();
 
-        Lieu lieu = new Lieu(idLieu, nom, adresse, ville, codePostal);
-        boolean result = lieuController.updateLieu(lieu);
+        boolean result = lieuController.updateLieu(idLieu, nom, adresse, ville, codePostal);
         Popup.toPrint(result, "Lieu modifié avec succès !", "Échec de la modification du lieu.");
     }
 
@@ -59,21 +59,22 @@ public class LieuView {
         boolean result = lieuController.deleteLieu(idLieu);
         Popup.toPrint(result, "Lieu supprimé avec succès !", "Échec de la suppression du lieu. Vérifiez l'ID.");
     }
-        
+
     public boolean ListerLieuxParNom(String nom) {
-        
-        List<Lieu> lieux = lieuController.getLieuxByName(nom);
+        List<HashMap<String, String>> lieux = lieuController.getLieuxByName(nom);
+
         if (lieux.isEmpty()) {
             System.out.println("Aucun lieu trouvé avec ce nom.Veuillez le créer");
             return false;
         } else {
             System.out.println("Lieux trouvés :");
-            for (Lieu lieu : lieux) {
-                System.out.println("ID: " + lieu.getIdLieu() + " | Nom: " + lieu.getNom() + " | Adresse: " + lieu.getAdresse() + " | Ville: " + lieu.getVille() + " | Code Postal: " + lieu.getCodePostal());
+            for (HashMap<String, String> lieu : lieux) {
+                System.out.println(
+                        "ID: " + lieu.get("id") + " | Nom: " + lieu.get("nom") + " | Adresse: " + lieu.get("adresse")
+                                + " | Ville: " + lieu.get("ville") + " | Code Postal: " + lieu.get("code_postal"));
             }
             return true;
         }
     }
-        
-    
+
 }

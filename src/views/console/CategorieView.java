@@ -1,5 +1,6 @@
 package views.console;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
@@ -15,12 +16,11 @@ public class CategorieView {
         this.categorieController = categorieController;
         scanner = new Scanner(System.in);
     }
-        
 
     public void ajouterUneCategorie() {
-    	System.out.println("\nAJOUTER UNE NOUVELLE CATEGORIE:");
+        System.out.println("\nAJOUTER UNE NOUVELLE CATEGORIE:");
         System.out.println("------------------------------\n");
-    	System.out.print("Entrez le nom de la catégorie à ajouter : ");
+        System.out.print("Entrez le nom de la catégorie à ajouter : ");
         String nom = scanner.nextLine();
 
         boolean result = categorieController.createCategorie(nom);
@@ -30,12 +30,12 @@ public class CategorieView {
     }
 
     public void modifierUneCategorie() {
-    	System.out.println("\nMODIFIER UNE CATEGORIE:");
+        System.out.println("\nMODIFIER UNE CATEGORIE:");
         System.out.println("------------------------------\n");
-        
+
         listerCategories();
-        
-    	System.out.print("Entrez l'ID de la catégorie à modifier : ");
+
+        System.out.print("Entrez l'ID de la catégorie à modifier : ");
         int idCat = Integer.parseInt(scanner.nextLine());
 
         System.out.print("Entrez le nouveau nom de la catégorie : ");
@@ -47,30 +47,30 @@ public class CategorieView {
     }
 
     public void supprimerUneCategorie() {
-    	System.out.println("\nSUPPRIMER D'UNE CATEGORIE:");
+        System.out.println("\nSUPPRIMER D'UNE CATEGORIE:");
         System.out.println("------------------------------\n");
-        
+
         listerCategories();
-        
-    	System.out.print("Entrez l'ID de la catégorie à supprimer : ");
+
+        System.out.print("Entrez l'ID de la catégorie à supprimer : ");
         int idCat = Integer.parseInt(scanner.nextLine());
 
         boolean result = categorieController.deleteCategorie(idCat);
         Popup.toPrint(result, "Catégorie supprimée avec succès !",
                 "Échec de la suppression de la catégorie. Vérifiez l'ID.");
     }
-    
-    public  void listerCategories() {
-        List<Categorie> categories = categorieController.listCategories();
-        
+
+    public void listerCategories() {
+        List<HashMap<String, String>> categories = categorieController.listCategories();
+
         if (categories.isEmpty()) {
             System.out.println("Aucune catégorie disponible.");
         } else {
             System.out.println("Liste des catégories :");
-            for (Categorie categorie : categories) {
-                System.out.println("ID: "+categorie.getIdCat() + "|Nom: "+categorie.getNom());
+            for (HashMap<String, String> categorie : categories) {
+                System.out.println("ID: " + categorie.get("id") + "|Nom: " + categorie.get("nom"));
             }
         }
     }
-    
+
 }

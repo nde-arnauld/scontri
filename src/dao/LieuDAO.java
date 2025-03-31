@@ -18,8 +18,8 @@ public class LieuDAO {
 
     private Connection conn;
 
-    public LieuDAO(Connection con) {
-        this.conn = con;
+    public LieuDAO() {
+        this.conn = Database.getConnection();
     }
 
     public boolean addLieu(Lieu lieu) {
@@ -71,7 +71,7 @@ public class LieuDAO {
         }
         return null;
     }
-    
+
     public List<Lieu> getLieuxByName(String nom) {
         List<Lieu> lieux = new ArrayList<>();
         String sql = "SELECT * FROM lieu WHERE nom LIKE ?";
@@ -81,12 +81,11 @@ public class LieuDAO {
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     Lieu lieu = new Lieu(
-                        rs.getInt("id_lieu"),
-                        rs.getString("nom"),
-                        rs.getString("adresse"),
-                        rs.getString("ville"),
-                        rs.getString("code_postal")
-                    );
+                            rs.getInt("id_lieu"),
+                            rs.getString("nom"),
+                            rs.getString("adresse"),
+                            rs.getString("ville"),
+                            rs.getString("code_postal"));
                     lieux.add(lieu);
                 }
             }
@@ -170,12 +169,11 @@ public class LieuDAO {
                 ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 Lieu lieu = new Lieu(
-                    rs.getInt(TB_ID_LIEU),
-                    rs.getString(TB_NOM),
-                    rs.getString(TB_ADRESSE),
-                    rs.getString(TB_VILLE),
-                    rs.getString(TB_CODE_POSTAL)
-                );
+                        rs.getInt(TB_ID_LIEU),
+                        rs.getString(TB_NOM),
+                        rs.getString(TB_ADRESSE),
+                        rs.getString(TB_VILLE),
+                        rs.getString(TB_CODE_POSTAL));
                 lieux.add(lieu);
             }
         } catch (SQLException e) {

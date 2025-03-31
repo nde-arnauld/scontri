@@ -15,7 +15,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Connection;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
@@ -44,8 +46,6 @@ public class MyRequest extends JFrame {
     private List<Map<String, Object>> events; // Liste des événements récupérés de la BDD
     DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-    private Connection connection;
-    private Part_EventDAO part_EventDAO;
     private Part_EventController part_EventController;
     private int idLoggedUser;
 
@@ -53,9 +53,7 @@ public class MyRequest extends JFrame {
      * Create the frame.
      */
     public MyRequest(int idLoggedUser) {
-        this.connection = Database.getConnection();
-        this.part_EventDAO = new Part_EventDAO(connection);
-        this.part_EventController = new Part_EventController(null, part_EventDAO);
+        this.part_EventController = new Part_EventController();
         this.idLoggedUser = idLoggedUser;
         initialize();
     }
@@ -172,7 +170,7 @@ public class MyRequest extends JFrame {
 
         JLabel lblNewLabel_1 = new JLabel("");
         lblNewLabel_1.setIcon(new ImageIcon(
-                "D:\\UNIVERSITE_DE_CORSE\\SECOND SEMESTER\\PROJET-IHM\\SONCTRI\\scontri\\media\\laCarte.png"));
+                "C:\\Users\\Etudiant\\Documents\\COURS_L3_STI_UCPP\\SEMESTRE_2\\PROJET\\Scontri\\media\\laCarte.png"));
         lblNewLabel_1.setHorizontalAlignment(SwingConstants.CENTER);
         lblNewLabel_1.setBounds(10, 264, 329, 163);
         panelDetails.add(lblNewLabel_1);
@@ -255,8 +253,8 @@ public class MyRequest extends JFrame {
         events = part_EventController.getEventsInfoForUser(idLoggedUser);
 
         for (Map<String, Object> eventInfo : events) {
-            Object dateDebut = eventInfo.get("date_debut");
-            Object dateFin = eventInfo.get("date_fin");
+            Object dateDebut = eventInfo.get("dateDebut");
+            Object dateFin = eventInfo.get("dateFin");
 
             String formattedDateDebut = dateDebut != null ? outputFormatter.format((java.time.LocalDateTime) dateDebut)
                     : "";
@@ -264,11 +262,11 @@ public class MyRequest extends JFrame {
 
             Object[] rowData = {
                     false,
-                    eventInfo.get("id_event"),
+                    eventInfo.get("id"),
                     eventInfo.get("nom"),
                     formattedDateDebut,
                     formattedDateFin,
-                    eventInfo.get("part_status")
+                    eventInfo.get("partStatus")
             };
             tableModel.addRow(rowData);
         }
@@ -278,23 +276,32 @@ public class MyRequest extends JFrame {
      * Affiche les détails d'un événement dans les labels.
      */
     private void showDetails(int selectedEventId) {
-        List<Part_Event> partsEvents = part_EventController.getPartsEvent(selectedEventId);
+        List<Map<String, Object>> partsEvents = part_EventController.getParticipantsInfoForEvent(selectedEventId);
         int participation = 0;
 
-        for (Part_Event part : partsEvents) {
-            if (part.getStatus() == PartEventStatus.VALIDEE) {
+        for (Map<String, Object> part : partsEvents) {
+            if (part.get("status").toString().equals(PartEventStatus.VALIDEE.toString())) {
                 participation++;
             }
         }
 
-        for (Map<String, Object> eventInfo : events) {
-            if ((int) eventInfo.get("id_event") == selectedEventId) {
-                lblNom.setText((String) eventInfo.get("nom"));
-                tADescription.setText((String) eventInfo.get("description"));
-                lblCapacite.setText("Nombre de place disponible: " + ((int) eventInfo.get("capacite") - participation) +"/"+ (int) eventInfo.get("capacite"));
-                lblPrix.setText("Prix: " + eventInfo.get("prix") + " €");
-                lblDateDebut.setText(outputFormatter.format((java.time.LocalDateTime) eventInfo.get("date_debut")));
-                lblDateFin.setText(outputFormatter.format((java.time.LocalDateTime) eventInfo.get("date_fin")));
+        for (Map<String, Object> event : events) {
+            int idEvent = Integer.parseInt(event.get("id").toString());
+            String nom = event.get("nom").toString();
+            String description = event.get("description").toString();
+            int capacite = Integer.parseInt(event.get("capacite").toString());
+            double prix = Double.parseDouble(event.get("prix").toString());
+            LocalDateTime dateDebut = (LocalDateTime) event.get("dateDebut");
+            LocalDateTime dateFin = (LocalDateTime) event.get("dateFin");
+
+            if (idEvent == selectedEventId) {
+                lblNom.setText(nom);
+                tADescription.setText(description);
+                lblCapacite.setText("Nombre de place disponible: " + (capacite - participation) + "/"
+                        + capacite);
+                lblPrix.setText("Prix: " + prix + " €");
+                lblDateDebut.setText(dateDebut.format(outputFormatter));
+                lblDateFin.setText(dateFin.format(outputFormatter));
                 return;
             }
         }
