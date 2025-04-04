@@ -154,18 +154,14 @@ public class MyEvent extends JFrame {
                 // Récupérer l'ID de l'événement sélectionné
                 int selectedEventId = (int) table.getValueAt(selectedRow, 0); // Supposons que l'ID est en première
                                                                               // colonne
-
-                // Récupérer la liste des participants
-                List<Map<String, Object>> participantsInfo = part_EventController
-                        .getParticipantsInfoForEvent(selectedEventId);
-
+              
                 // Créer la boîte de dialogue modale
                 JDialog dialog = new JDialog(MyEvent.this, "Gestion des participants", true);
                 dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
                 dialog.setSize(600, 500);
                 dialog.setLocationRelativeTo(MyEvent.this);
 
-                ManagePartEvent managePartEvent = new ManagePartEvent(participantsInfo, idLoggedUser,
+                ManagePartEvent managePartEvent = new ManagePartEvent(idLoggedUser,
                         selectedEventId);
                 dialog.setContentPane(managePartEvent.getContentPane());
                 dialog.setVisible(true);

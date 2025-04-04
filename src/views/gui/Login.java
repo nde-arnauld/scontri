@@ -118,6 +118,7 @@ public class Login extends JFrame { // Changement de JDialog à JFrame
 			}
 		});
 		contentPane.add(btnValider);
+		getRootPane().setDefaultButton(btnValider);
 
 		// Bouton Inscription
 		btnInscription = new JButton("S'inscrire");

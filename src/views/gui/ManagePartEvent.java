@@ -17,12 +17,8 @@ import javax.swing.table.DefaultTableModel;
 
 import controllers.Org_EventController;
 import controllers.Part_EventController;
-import dao.Org_EventDAO;
-import dao.Part_EventDAO;
-import models.User;
 import utils.enums.PartEventStatus;
 
-import java.sql.Connection;
 import java.time.format.DateTimeFormatter;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -45,8 +41,7 @@ public class ManagePartEvent extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public ManagePartEvent(List<Map<String, Object>> usersList, int idLoggedUser, int idEvent) {
-		this.participantsList = usersList;
+	public ManagePartEvent( int idLoggedUser, int idEvent) {
 		this.idEvent = idEvent;
 		this.part_EventController = new Part_EventController();
 		this.org_EventController = new Org_EventController();
@@ -142,7 +137,10 @@ public class ManagePartEvent extends JFrame {
 	 */
 	private void loadParticipantsData() {
 		tableModel.setRowCount(0); // Clear existing data
-
+		
+		// Récupérer la liste des participants
+        participantsList = part_EventController.getParticipantsInfoForEvent(idEvent);
+		
 		for (Map<String, Object> participant : participantsList) {
 			Object datePart = participant.get("date_part");
 			String formattedDate = datePart != null ? outputFormatter.format((java.time.LocalDateTime) datePart) : "";
@@ -175,10 +173,12 @@ public class ManagePartEvent extends JFrame {
 		if (hasSelection) {
 			javax.swing.JOptionPane.showMessageDialog(this, "Opération réussie.", "Succès",
 					javax.swing.JOptionPane.INFORMATION_MESSAGE);
-			loadParticipantsData(); // Recharger les données du tableau
+			loadParticipantsData();
+
 		} else {
 			javax.swing.JOptionPane.showMessageDialog(this, "Veuillez sélectionner au moins un participant.", "Erreur",
 					javax.swing.JOptionPane.ERROR_MESSAGE);
+		
 		}
 	}
 }
